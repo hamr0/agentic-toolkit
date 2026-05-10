@@ -1,5 +1,10 @@
 # Agentic Toolkit
 
+<p align="center">
+  <img src="https://img.shields.io/github/package-json/v/hamr0/agentic-toolkit?label=version&color=2a4f8c" alt="version (auto from package.json)">
+  <img src="https://img.shields.io/badge/license-MIT-2a4f8c" alt="license: MIT">
+</p>
+
 **Your Gateway to Vibecoding: AI-Powered Development Made Simple**
 
 Discover proven tools and structured frameworks to start vibecoding as a non-technical or semi-technical user. Get essential scripts for Linux environments, learn through Vibecoding 101, and deploy ready-made AI subagents to accelerate your development workflow.
