@@ -2,7 +2,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/github/package-json/v/hamr0/agentic-toolkit?label=version&color=2a4f8c" alt="version (auto from package.json)">
-  <img src="https://img.shields.io/badge/license-MIT-2a4f8c" alt="license: MIT">
+  <img src="https://img.shields.io/badge/license-Apache%202.0-2a4f8c" alt="license: Apache 2.0">
 </p>
 
 **Your Gateway to Vibecoding: AI-Powered Development Made Simple**

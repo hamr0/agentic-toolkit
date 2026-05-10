@@ -7,5 +7,5 @@
     "type": "git",
     "url": "git+https://github.com/hamr0/agentic-toolkit.git"
   },
-  "license": "MIT"
+  "license": "Apache-2.0"
 }
