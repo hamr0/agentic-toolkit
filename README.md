@@ -24,8 +24,8 @@ Featuring structured thinking frameworks, skills, and plugins that guide your AI
 | Category | Component | Description |
 |----------|-----------|-------------|
 | **Agents** | 11 Role-Based Specialists | Orchestrator, QA, Dev, Architect, UX, Feature Planner, Market Researcher, Context Builder plus 3-phase workflow agents (1-create-prd, 2-generate-tasks, 3-process-task-list) |
-| **Skills** | 10 Core Workflows | systematic-debugging, test-driven-development, verification-before-completion, testing-anti-patterns, root-cause-tracing, condition-based-waiting, brainstorming, code-review, skill-creator, docs-builder |
-| **Commands** | 10 Development Tools | debug, explain, git-commit, optimize, refactor, review, security, ship, stash, test-generate |
+| **Skills** | 11 Core Workflows | systematic-debugging, test-driven-development, verification-before-completion, testing-anti-patterns, root-cause-tracing, condition-based-waiting, brainstorming, code-review, skill-creator, docs-builder, live-canvas |
+| **Commands** | 12 Development Tools | debug, explain, friction, git-commit, optimize, refactor, remember, review, security, ship, stash, test-generate |
 | **Workflows** | 3-Phase Development | PRD Creation → Task Generation → Sequential Execution with automatic routing through digraph state machines |
 | **Architecture** | Token Efficient | Progressive disclosure loads ~950 tokens for agent stubs, expands only when invoked |
 | **Installation** | Multiple Options | Manual copy-paste (`cp -r ai/subagentic/claude/* ~/.claude/`) or NPM (`npx liteagents`) |
@@ -101,10 +101,10 @@ cp -rv ai/subagentic/ampcode/* ~/.config/amp/    # Amp
 
 | Platform | Agents | Skills/Commands      | Install Path | Project Path | Source Path |
 |----------|--------|----------------------|--------------|--------------|-------------|
-| **Claude Code** | 11 agents | 10 skills + 12 commands | `~/.claude/` | `./.claude/` | `ai/subagentic/claude/` |
-| **OpenCode** | 11 agents | 22 commands          | `~/.config/opencode/` | `./.opencode/` | `ai/subagentic/opencode/` |
-| **Droid** | 11 droids | 22 commands          | `~/.factory/` | `./.factory/` | `ai/subagentic/droid/` |
-| **Amp** | 11 agents | 22 commands | `~/.config/amp/` | `./.amp/` | `ai/subagentic/ampcode/` |
+| **Claude Code** | 11 agents | 11 skills + 12 commands + live-canvas-channel plugin | `~/.claude/` | `./.claude/` | `ai/subagentic/claude/` |
+| **OpenCode** | 11 agents | 23 commands          | `~/.config/opencode/` | `./.opencode/` | `ai/subagentic/opencode/` |
+| **Droid** | 11 droids | 23 commands          | `~/.factory/` | `./.factory/` | `ai/subagentic/droid/` |
+| **Amp** | 11 agents | 11 skills + 12 commands | `~/.config/amp/` | `./.amp/` | `ai/subagentic/ampcode/` |
 
 **Usage**: Invoke with `@agent-name` or `As agent-name, ...` (Claude/OpenCode/Amp) or `invoke droid agent-name` (Droid). Commands via `/command-name`.
 
@@ -127,10 +127,10 @@ Agentic Toolkit is **complete and self-sufficient**. Optionally add [Superpowers
 agentic-toolkit/
 ├── ai/
 │   ├── subagentic/              # Subagent kits for all platforms
-│   │   ├── claude/              # 11 agents + 10 skills + 10 commands
-│   │   ├── opencode/            # 11 agents + 20 commands
-│   │   ├── droid/               # 11 droids + 20 commands
-│   │   └── ampcode/             # 11 agents + 10 skills + 10 commands
+│   │   ├── claude/              # 11 agents + 11 skills + 12 commands + live-canvas-channel plugin
+│   │   ├── opencode/            # 11 agents + 23 commands
+│   │   ├── droid/               # 11 droids + 23 commands
+│   │   └── ampcode/             # 11 agents + 11 skills + 12 commands
 │   ├── customize/               # Platform customization configs
 │   │   ├── byok/                # Bring Your Own Key configs
 │   │   ├── claude-switcher/     # Claude Code LLM/MCP switcher

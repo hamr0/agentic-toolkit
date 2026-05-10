@@ -31,10 +31,10 @@ Install for your platform:
 
 | Platform | Installation | What's Included |
 |----------|--------------|-----------------|
-| **Claude Code** | `cp -r claude/* ~/.claude/` | 11 subagents + 10 skills + 12 commands |
-| **Droid** | `cp -r droid/* ~/.factory/` | 22 commands (subagent references) |
-| **Ampcode** | `cp -r ampcode/* ~/.config/amp/` | 11 subagents + 10 skills + 12 commands |
-| **OpenCode** | `cp -r opencode/* ~/.config/opencode/` | 22 commands (subagent references) |
+| **Claude Code** | `cp -r claude/* ~/.claude/` | 11 subagents + 11 skills + 12 commands + live-canvas-channel plugin |
+| **Droid** | `cp -r droid/* ~/.factory/` | 23 commands (subagent references) |
+| **Ampcode** | `cp -r ampcode/* ~/.config/amp/` | 11 subagents + 11 skills + 12 commands |
+| **OpenCode** | `cp -r opencode/* ~/.config/opencode/` | 23 commands (subagent references) |
 
 **Key Difference**:
 - **Claude Code / Ampcode** implement full subagent system with orchestrator
@@ -50,9 +50,9 @@ Install for your platform:
 - 3 Workflow Agents (PRD, Tasks, Implementation)
 - 8 Specialist Agents (UX, QA, Architecture, Product, Development, etc.)
 
-**10 Skills** - Auto-triggering workflow components
+**11 Skills** - Auto-triggering + manual workflow components
 - test-driven-development, testing-anti-patterns, verification-before-completion (auto-trigger)
-- brainstorming, code-review, systematic-debugging, docs-builder, etc.
+- brainstorming, code-review, systematic-debugging, docs-builder, live-canvas, etc.
 
 **12 Commands** - Simple workflow helpers
 - debug, explain, friction, git-commit, optimize, refactor, remember, review, security, ship, stash, test-generate
@@ -64,7 +64,7 @@ Install for your platform:
 
 ### Droid/OpenCode (Commands Only)
 
-**22 Commands** - All workflow capabilities in command form
+**23 Commands** - All workflow capabilities in command form
 - Combines skills + commands into unified command set
 - Same functionality, different invocation model (no auto-triggering)
 - Includes reference documentation for subagents
@@ -102,18 +102,19 @@ Install for your platform:
 
 ## Commands Reference
 
-### Claude Code / Ampcode: 22 Total (10 Skills + 12 Commands)
+### Claude Code / Ampcode: 23 Total (11 Skills + 12 Commands)
 
 **Auto-Triggering Skills (3)**
 - `test-driven-development` - Write test first, watch fail, minimal passing code
 - `testing-anti-patterns` - Prevent mocking anti-patterns and test pollution
 - `verification-before-completion` - Run verification before claiming done
 
-**Manual Skills (7)**
+**Manual Skills (8)**
 - `brainstorming` - Refine rough ideas through collaborative questioning
 - `code-review` - Review implementation against requirements
 - `condition-based-waiting` - Replace timeouts with condition polling
 - `docs-builder` - Create structured /docs hierarchy
+- `live-canvas` - Design UI variations with click-to-annotate browser feedback. **Claude Code ships a companion MCP channel plugin (`live-canvas-channel`) that enables live mode — each overlay Save streams into the session in real time.** Other tools run in batch mode only. One-time setup required: see `packages/claude/skills/live-canvas/README.md`.
 - `root-cause-tracing` - Trace bugs backward through call stack
 - `skill-creator` - Guide for creating new skills
 - `systematic-debugging` - Four-phase debugging framework
@@ -132,17 +133,19 @@ Install for your platform:
 - `stash` - Save session context for compaction recovery or handoffs
 - `test-generate` - Test suite generation
 
-### Droid/OpenCode: 22 Commands
+### Droid/OpenCode: 23 Commands
 
 Same functionality as skills+commands, but:
 - All invoked as commands (no auto-triggering)
 - Unified command set
 - No orchestrator integration
+- `live-canvas` runs in batch mode only (no channel plugin — that's Claude Code specific)
 
 **Command Categories**:
 - **Development & Testing (9)**: test-driven-development, testing-anti-patterns, test-generate, code-review, systematic-debugging, root-cause-tracing, debug, condition-based-waiting, verification-before-completion
 - **Code Operations (6)**: refactor, optimize, explain, review, security, ship
 - **Session & Memory (7)**: brainstorming, skill-creator, docs-builder, git-commit, stash, friction, remember
+- **Design (1)**: live-canvas
 
 ---
 
@@ -282,7 +285,7 @@ Subagent workflows require manual coordination.
 ```
 ~/.factory/
 ├── AGENTS.md           # Reference doc (subagents + commands)
-└── commands/           # 22 commands (*.md)
+└── commands/           # 23 commands (*.md)
 ```
 
 **Features**:
@@ -294,7 +297,7 @@ Subagent workflows require manual coordination.
 ```
 ~/.config/opencode/
 ├── AGENTS.md           # Reference doc (subagents + commands)
-└── command/            # 22 commands (*.md)
+└── command/            # 23 commands (*.md)
 ```
 
 **Features**:
