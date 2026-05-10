@@ -14,6 +14,29 @@ ballpark, grouped by milestone rather than per-commit.
   npm-style tooling integration).
 - README badges (version + license, plato-style; #2a4f8c).
 
+## [1.3.0] — 2026-05-10
+
+`live-canvas` skill lands across all four platforms — design UI
+variations with click-to-annotate browser feedback. Claude Code
+ships a companion `live-canvas-channel` MCP plugin that enables
+live mode (each overlay Save streams into the session in real
+time); other platforms run in batch mode only.
+
+### Added
+- `live-canvas` skill/command across Claude, Ampcode, Droid,
+  Opencode (templates: vanilla overlay, React feedback components,
+  demo variants).
+- Claude Code: `live-canvas-channel` MCP plugin (marketplace +
+  setup script) for live streaming feedback.
+- `variants.json` across all platform packages.
+
+### Changed
+- Skills count: 10 → 11 (live-canvas).
+- Droid/Opencode commands: 22 → 23 (live-canvas).
+- `friction` command refreshed across all platforms.
+- `subagentic-manual.md` and `README.md` updated to reflect new
+  inventory + live-canvas channel plugin note.
+
 ## [1.2.0] — 2026-02-13
 
 Documentation hardening pass: tone moved from "preferences" to
