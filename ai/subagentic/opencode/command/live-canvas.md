@@ -1,8 +1,6 @@
 ---
 name: live-canvas
-description: Conduct design interviews, generate UI variations, and collect click-to-annotate feedback from the browser. Batch mode only on this host (live channel is Claude-Code-specific).
-usage: /live-canvas
-auto_trigger: false
+description: Conduct design interviews, generate UI variations, and collect live click-to-annotate feedback that streams into the session so edits land without leaving the browser. Use when the user wants rapid iterative UI refinement, not just batched feedback.
 ---
 
 # Live Canvas Skill
@@ -17,120 +15,125 @@ This skill implements a complete design exploration workflow: interview, generat
 
 **Never leave `.claude-design/` or `__live_canvas` routes behind.** If the user says "cancel", "abort", "stop", or "nevermind" at any point, confirm and then delete all temporary artifacts.
 
+---
 
-## Feedback Modes (host-tool aware)
+## Feedback Modes — always ask the user
 
-Live Canvas supports two feedback transports. The skill auto-selects at runtime — the user never toggles modes manually.
+Live Canvas supports two feedback transports. **The user picks every time** — never auto-select.
 
-- **Mode A — Batch (universal, works everywhere):** each Save writes to `.claude-design/feedback.jsonl`. User types "check" (or any message) to have the assistant read and act on the batch. Works in Claude Code, Droid, Amp, and Opencode identically.
-- **Mode B — Live (Claude Code only):** the overlay POSTs each Save to a local MCP channel server; feedback arrives in the active session as a `<channel source="live-canvas" ...>` tag. Edits land without the user switching windows.
+- **Live channel (Claude Code only):** the overlay POSTs each Save to a local MCP channel server; feedback arrives in the active session as a `<channel source="live-canvas" ...>` tag. Requires the session was launched with `live-claude` (or `claude --dangerously-load-development-channels plugin:live-canvas-channel@live-canvas-marketplace`) — channels are still an experimental Claude Code feature and a plain `claude` session silently drops the notifications. Any qualifying session can claim the channel by calling `mcp__live-canvas__channel_open`; only one holds it at a time.
+- **JSON file (universal):** each Save accumulates locally; Submit writes `.claude-design/feedback.jsonl` (or downloads the JSON). User says "check" or pastes the file when ready. Works in any host.
 
-**Host-tool guidance — follow exactly:**
+### Host detection — do this first
 
-| Host | Modes available | What to do |
-|---|---|---|
-| Claude Code | A + B | Probe channel at Phase 0. If up → Live. If down → announce Batch and print the one-time setup block below. |
-| Droid, Amp, Opencode | A only | Never probe the channel, never mention Live mode, never offer to install a plugin. Use Batch exclusively and collect feedback via paste-in-terminal (Phase 5). |
+This SKILL.md is the Claude Code variant of the skill. Same content is mirrored as docs for Droid/Amp/Opencode under `packages/<tool>/commands/live-canvas/`, but those tools don't support the MCP channel.
 
-### Channel activation — run this BEFORE starting the interview
+**If running under Droid, Amp, or Opencode (not Claude Code):**
+- Skip the mode question entirely.
+- Announce: `📝 JSON mode (Live channel requires Claude Code)`.
+- Proceed to Phase 1 with `channelUrl` omitted in the overlay init.
+- Never mention the channel plugin.
 
-Users invoke `/live-canvas` from an ordinary Claude Code session most of the time. They won't have started with the dev-channels flag unless they remembered. The skill's job is to figure out what state they're in and guide them without making them read docs.
+How to tell which host you're in: the environment variable `CLAUDECODE=1` is set by Claude Code. If unset, assume non-Claude and go straight to JSON.
 
-**Step A — Probe the channel:**
+### Mode selection (Claude Code only)
 
-```bash
-curl -s --max-time 1 http://localhost:8788/health
-```
+Always ask, never auto-detect. Use `AskUserQuestion`:
 
-**Step B — Decide which case you're in:**
+> **Question: Pick a feedback mode**
+> - **Live channel** — overlay streams each Save straight into this Claude session. **Requires this session to have been started with `live-claude`** (sets the `--dangerously-load-development-channels` flag). If you started with plain `claude`, pick JSON instead — Live mode will refuse to start and tell you to open a new `live-claude` terminal.
+> - **JSON file** — overlay writes feedback to a local JSON file; tell me "check" when ready. Works in any session, plain `claude` included.
 
-| Probe result | Plugin dir exists at `~/.claude/plugins/cache/live-canvas-marketplace/`? | Case |
-|---|---|---|
-| `{"ok":true,...}` | (don't bother checking) | **Case 1 — Live ready** |
-| fails | exists | **Case 2 — Plugin installed, session not in dev mode** |
-| fails | missing | **Case 3 — First-time user** |
+**If the user picks JSON**, try to bind the batch endpoint so submissions write to disk instead of triggering a browser download. Call `mcp__live-canvas__batch_open`:
 
-**Step C — Act on the case.**
+| Tool result | What to do |
+|---|---|
+| Tool not available (no MCP) | Announce `📝 JSON mode — overlay will offer JSON download on Submit`. Proceed to Phase 1 with both `channelUrl` and `batchEndpoint` omitted. |
+| `{status: "opened", ...}` or `{status: "already_listening", ...}` | Announce `📝 JSON mode — submissions write to .claude-design/feedback.jsonl`. Proceed to Phase 1 with `batchEndpoint: 'http://localhost:8788/feedback-jsonl'` and `channelUrl` omitted. |
+| `{status: "in_use", ...}` | Announce `📝 JSON mode — overlay will offer JSON download on Submit (another session holds the port)`. Proceed to Phase 1 with both `channelUrl` and `batchEndpoint` omitted. |
 
-### Case 1 — Live ready
+Call `mcp__live-canvas__channel_close` on cleanup/abort to release the port (same teardown as Live mode).
 
-Announce briefly and proceed to the interview:
+**If the user picks Live**, claim the channel by calling the MCP tool `mcp__live-canvas__channel_open`. Branch on the result:
 
-```
-✨ Live mode — your feedback will stream into this session in real time.
-```
+| Tool result | What to do |
+|---|---|
+| Tool not available (no such tool / MCP error) | **Case C: First-time setup needed.** Print the install block (below) and STOP. |
+| `{status: "opened", ...}` (no `took_over`) | **Case A: Ready.** Announce `✨ Live mode — feedback streams into this session`. Proceed to Phase 1 with `channelUrl: 'http://localhost:8788'`. |
+| `{status: "opened", took_over: <pid>, ...}` | **Case A (takeover): Ready.** Announce `✨ Live mode — feedback streams into this session (took over channel from prior live-canvas session pid <pid>)`. Proceed to Phase 1 the same as plain Case A. The prior session's MCP was a sibling instance of this plugin (same user); its `/live-canvas` workflow there is now over, but the lab files on disk are untouched. |
+| `{status: "already_listening", ...}` | **Case A: Ready.** Announce `✨ Live mode — feedback streams into this session`. Proceed to Phase 1 with `channelUrl: 'http://localhost:8788'`. |
+| `{status: "in_use", holder_pid, message, ...}` | **Case B: Foreign process holds the port.** A non-live-canvas process is using port 8788 (e.g., a dev server on the wrong port). Print the busy block (below) and STOP — the plugin won't kill processes it doesn't own. |
+| `{status: "no_channel_capability", message, ...}` | **Case D: Session lacks the channels flag.** Print the relaunch block (below) and STOP. Do NOT proceed to Live mode — notifications would be silently dropped. |
 
-No decision needed. Skip to Phase 1.
+You must call `mcp__live-canvas__channel_close` later — see Phase 8 (Cleanup) and Abort Handling. The MCP plugin also auto-releases the port on session disconnect as a safety net, but explicit close is cleaner.
 
-### Case 2 — Plugin installed but session not in dev mode
+**Case B — busy block (foreign holder):**
 
-This is the common case for returning users who forgot the dev flag. Use `AskUserQuestion`:
-
-> **Question: How do you want to run this session?**
-> - "Batch for now" — continue without live mode. Feedback writes to JSONL; paste or say 'check' when ready.
-> - "Restart for Live mode" — I'll abort here. Close this session, run the command below in your terminal, then `/live-canvas` again in the new one.
-
-If they pick "Restart for Live mode", print:
-
-```
-Close this Claude session, then run:
-
-  claude --dangerously-load-development-channels plugin:live-canvas-channel@live-canvas-marketplace
-
-When it reopens, confirm the safety prompt, then run /live-canvas again — I'll be in Live mode.
-
-Tip: save an alias so you don't retype this every time:
-  alias claude-live='claude --dangerously-load-development-channels plugin:live-canvas-channel@live-canvas-marketplace'
-```
-
-Then exit the skill cleanly — do not start the interview. The user is going to close this session.
-
-If they pick "Batch for now", announce Batch mode and proceed to Phase 1 normally.
-
-### Case 3 — First-time user
-
-Channel plugin has never been set up. Use `AskUserQuestion`:
-
-> **Question: Set up Live mode?**
-> - "Yes, walk me through it" — I'll print the one-time setup commands.
-> - "Just use Batch mode" — skip setup, start the skill normally.
-
-If they pick setup, print the full sequence:
+Substitute the actual `holder_pid` from the tool response into the message below.
 
 ```
-One-time setup for Live mode:
+Port 8788 is held by pid <holder_pid>, which is NOT a live-canvas server
+(it's some other process). I won't kill processes I don't own.
 
-1. Install channel plugin dependencies (run in your terminal):
-   bash ~/.claude/plugins/live-canvas-marketplace/setup.sh
+To use Live mode:
+  • Find what it is:  ps -fp <holder_pid>
+  • Stop it if it's safe to stop (e.g. a stray dev server on the wrong port).
+  • Then re-run /live-canvas in this session and pick Live.
 
-   This runs `npm install` in the plugin dir.
-
-2. Inside Claude Code, register and install the plugin:
-   /plugin marketplace add ~/.claude/plugins/live-canvas-marketplace
-   /plugin install live-canvas-channel@live-canvas-marketplace
-
-3. Close this session and reopen with the dev-channels flag:
-   claude --dangerously-load-development-channels plugin:live-canvas-channel@live-canvas-marketplace
-
-4. Accept the safety prompt, then run /live-canvas again.
-
-Tip: alias for future sessions:
-  alias claude-live='claude --dangerously-load-development-channels plugin:live-canvas-channel@live-canvas-marketplace'
+Or pick JSON now — JSON mode does not require port 8788.
 ```
 
-Exit the skill — don't start the interview. The user has a multi-step setup to do.
+**Case D — relaunch block (no channels flag):**
 
-If they pick Batch, announce Batch mode and proceed to Phase 1 normally.
+```
+This Claude session is plain `claude` — it can't receive Live-mode feedback.
+Live mode needs a session started with `live-claude` (which sets the
+experimental --dangerously-load-development-channels flag). Without it,
+your browser Saves would POST 200 but never appear in chat.
 
-### Why not auto-run the setup commands?
+To use Live mode:
 
-**Do not try to run any of these commands yourself.** Three reasons:
-1. Steps 2 and 3 require Claude Code slash commands and a session restart — you can't do either from inside a running session.
+  1. Open a NEW terminal (you can keep this one running; it's fine to have
+     both). Do NOT --continue this session — start fresh in the project.
+  2. cd to your project directory.
+  3. Run:  live-claude
+       (if the command isn't found: run `source ~/.zshrc` first, or re-run
+       packages/claude/plugins/live-canvas-marketplace/setup.sh)
+       (literal form: claude --dangerously-load-development-channels plugin:live-canvas-channel@live-canvas-marketplace)
+  4. In that NEW session, run /live-canvas and pick Live.
+
+The lab files are written to disk in the project's `.claude-design/lab/`,
+so any session in the right cwd can pick up where another left off.
+
+Or pick JSON now to stay in this session — feedback gets written to a file
+you paste back here. No relaunch needed.
+```
+
+**Case C — first-time setup block:**
+
+```
+Live mode needs a one-time install. Two steps:
+
+  1. From this repo's root (or wherever liteagents lives):
+       bash packages/claude/plugins/live-canvas-marketplace/setup.sh
+     This copies the marketplace into ~/.claude/plugins/ and runs npm install.
+
+  2. In any Claude session, register and install the plugin:
+       /plugin marketplace add ~/.claude/plugins/live-canvas-marketplace
+       /plugin install live-canvas-channel@live-canvas-marketplace
+
+That's it — once the plugin is installed, /live-canvas in any session can
+claim the channel. Re-run /live-canvas and pick Live.
+```
+
+Do not try to run any of these commands yourself. Three reasons:
+1. The `/plugin` steps are Claude Code slash commands — not doable from inside a running session.
 2. Accepting the research-preview safety prompt must be the user's explicit act.
 3. If something goes wrong mid-install, the user needs to see each step's output to diagnose.
 
 The user always executes these manually. Your job is to make the sequence obvious and copyable.
 
+---
 
 ## Phase 0: Preflight Detection
 
@@ -208,6 +211,7 @@ theme.boxShadow   // Elevation system
 
 **Store inferred styles in the Design Brief** for consistent use across all variants.
 
+---
 
 ## Phase 1: Interview
 
@@ -343,6 +347,7 @@ If target is unclear, propose a name based on repo patterns and confirm.
   - "None" - No special constraints
 - multiSelect: true
 
+---
 
 ## Phase 2: Generate Design Brief
 
@@ -381,6 +386,7 @@ After the interview, create a structured Design Brief as JSON and save to `.clau
 
 Display a summary to the user before proceeding.
 
+---
 
 ## Phase 3: Generate Live Canvas
 
@@ -400,12 +406,6 @@ Create all files under `.claude-design/`:
 │   │   └── VariantE.tsx
 │   ├── components/
 │   │   └── LabShell.tsx         # Lab layout wrapper
-│   ├── feedback/                # Interactive feedback system
-│   │   ├── types.ts             # TypeScript interfaces
-│   │   ├── selector-utils.ts    # Element identification
-│   │   ├── format-utils.ts      # Feedback formatting
-│   │   ├── FeedbackOverlay.tsx  # Main overlay component
-│   │   └── index.ts             # Module exports
 │   └── data/
 │       └── fixtures.ts          # Shared mock data
 ├── design-brief.json
@@ -416,61 +416,54 @@ Create all files under `.claude-design/`:
 
 **The overlay is the PRIMARY feature of Live Canvas.** Without it, users cannot provide interactive feedback. NEVER generate a lab without the overlay.
 
-### Choose the right overlay template
+### The overlay
 
-The skill ships two overlay templates under `~/.claude/skills/live-canvas/templates/`:
+**One template, every framework:** `~/.claude/skills/live-canvas/templates/overlay-vanilla.js`. Single file, zero dependencies, plain DOM. Works in vanilla JS, Vue, Svelte, Rails, Django, Phoenix, plain HTML, Next.js, Vite-React, Remix — anywhere a `<script>` tag runs.
 
-| Template | When to use |
-|---|---|
-| `feedback-react/FeedbackOverlay.tsx` | React / Next.js / Vite-React projects — integrates via JSX |
-| `overlay-vanilla.js` | Everything else: vanilla JS, Vue, Svelte, Rails, Django, Phoenix, plain HTML, Go templates, etc. One script tag, zero dependencies. |
-
-Detect the host framework in Phase 0 and copy the matching template into the route directory. The vanilla template is the safer default when in doubt — it works in every context the React one does, plus more.
-
-### Required files in the route directory
-
-For **React-based** projects:
-```
-app/live-canvas/           # or app/__live_canvas/
-├── page.tsx              # Main lab page with variants + overlay import
-└── FeedbackOverlay.tsx   # Copy of feedback-react/FeedbackOverlay.tsx
-```
-
-Import: `import { FeedbackOverlay } from './FeedbackOverlay'`
-
-For **non-React** projects:
-```
-<static-dir>/__live_canvas/
-├── index.html             # Or framework-appropriate entry point
-└── overlay-vanilla.js     # Copy of templates/overlay-vanilla.js
-```
-
-HTML: `<script src="overlay-vanilla.js"></script>` plus an init script that wires up mode + target (see "Wiring the overlay" below).
+Copy it into a directory served by the dev server (e.g. `public/overlay-vanilla.js` for Next.js, `static/overlay-vanilla.js` for Vite, the public dir for Rails/Django). Reference it from the lab page.
 
 ### Wiring the overlay
 
-Every page that renders the lab must initialize the overlay once. Behavior depends on whether Live mode was detected in Phase 0.
+The overlay needs one `init()` call with `target`, `channelUrl` (Live only), and optionally `batchEndpoint`.
 
-**Vanilla (`overlay-vanilla.js`):**
+**Server-rendered / vanilla HTML:**
 
 ```html
-<script src="./overlay-vanilla.js"></script>
+<script src="/overlay-vanilla.js"></script>
 <script>
   LiveCanvas.init({
     target: '<ComponentOrPageName>',
-    // Only include channelUrl when Phase 0 detected a live channel.
-    // If Batch mode, OMIT channelUrl so the overlay skips the probe.
+    // Only include channelUrl when the user picked Live and the probe succeeded.
+    // In JSON mode, OMIT channelUrl so the overlay skips the probe.
     channelUrl: 'http://localhost:8788',
-    // Optional: where to POST batch payloads when channelUrl is missing.
-    // When omitted, a batch Submit downloads a JSON file instead.
+    // Optional: where to POST JSON payloads when channelUrl is missing.
+    // When omitted, Submit downloads a JSON file instead.
     batchEndpoint: '/__live_canvas/feedback',
   });
 </script>
 ```
 
-**React (`FeedbackOverlay.tsx`):**
+**React / Next.js / Vite-React:** load the script with the framework's mechanism and init in a `useEffect`:
 
-Pass the same `targetName` prop plus the mode-appropriate endpoints via its props. Render `<FeedbackOverlay />` at the end of the lab page.
+```tsx
+import Script from 'next/script';
+import { useEffect } from 'react';
+
+export default function Lab() {
+  useEffect(() => {
+    (window as any).LiveCanvas?.init({
+      target: 'PostCard',
+      channelUrl: 'http://localhost:8788', // omit in JSON mode
+    });
+  }, []);
+  return (<>
+    <Script src="/overlay-vanilla.js" strategy="afterInteractive" />
+    {/* variants ... */}
+  </>);
+}
+```
+
+Vite-React: use `<script>` in `index.html` or `useEffect` with a dynamic `import()`. Same `LiveCanvas.init({...})` call.
 
 ### Why the templates live in the route directory
 
@@ -511,6 +504,7 @@ Create the most appropriate temporary route for the detected framework.
 - Border radius → from existing cards, buttons, inputs
 - Shadows → from existing elevated components
 
+---
 
 Each variant MUST explore a different design axis. Do not create minor variations—make them meaningfully distinct. **Use the project's existing visual language for all variants.**
 
@@ -551,6 +545,7 @@ The Live Canvas page must include:
 1. **Header** with:
    - Design Brief summary (target, scope, key requirements)
    - Instructions for reviewing
+   - **Lab banner (REQUIRED)** — paste `~/.claude/skills/live-canvas/templates/lab-banner.html` at the top of the lab page. Same text in any mode. For React/TSX labs, translate the inline style to a JS object: camelCase keys, string values. E.g. `style="border-radius:8px; padding:10px 14px; font-size:13px"` → `style={{ borderRadius: '8px', padding: '10px 14px', fontSize: '13px' }}`. Keep the text and `role="note"`.
 
 2. **Variant Grid** with:
    - Clear labels (A, B, C, D, E)
@@ -571,43 +566,13 @@ The Live Canvas page must include:
 
    ⚠️ **THIS IS THE MOST IMPORTANT REQUIREMENT** ⚠️
 
-   The FeedbackOverlay enables users to click on elements and leave comments. Without it, the Live Canvas is just a static page with no way to collect structured feedback.
+   The overlay (`overlay-vanilla.js`) enables users to click on elements and leave comments. Without it, the Live Canvas is just a static page with no way to collect structured feedback.
 
-   - Create `FeedbackOverlay.tsx` in the SAME directory as `page.tsx`
-   - Import with relative path: `import { FeedbackOverlay } from './FeedbackOverlay'`
-   - Render at the END of the page, after all variants
-   - Pass `targetName` prop with the component/page name
+   - Copy `~/.claude/skills/live-canvas/templates/overlay-vanilla.js` into a directory served by the dev server (e.g. `public/`, `static/`, or wherever the framework serves static assets).
+   - Reference it from the lab page via `<script>` tag and call `LiveCanvas.init({...})` once with `target`, `channelUrl` (Live mode), and optional `batchEndpoint`. See "Wiring the overlay" above for the exact snippets per framework.
+   - Every variant container in the lab page MUST have a `data-variant="X"` attribute (A, B, C, D, E, or F). The overlay uses this to route comments to the right variant file.
 
-   **Example integration:**
-
-```tsx
-import { FeedbackOverlay } from './FeedbackOverlay';  // Relative import - always works
-
-export default function DesignLabPage() {
-  return (
-    <div className="min-h-screen bg-background">
-      <header>...</header>
-
-      <main>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div data-variant="A">
-            <VariantA />
-          </div>
-          <div data-variant="B">
-            <VariantB />
-          </div>
-          {/* ... more variants */}
-        </div>
-      </main>
-
-      {/* CRITICAL: FeedbackOverlay must be included */}
-      <FeedbackOverlay targetName="ComponentName" />
-    </div>
-  );
-}
-```
-
-   **If you forget the FeedbackOverlay, the user CANNOT provide feedback.** This defeats the entire purpose of the Live Canvas.
+   **If you forget to wire up the overlay, the user CANNOT provide feedback.** This defeats the entire purpose of the Live Canvas.
 
 ### Code Quality
 
@@ -633,6 +598,7 @@ export default function DesignLabPage() {
 - Use ease-out for entrances, ease-in for exits
 - Respect `prefers-reduced-motion`
 
+---
 
 ## Phase 4: Present Live Canvas to User
 
@@ -660,17 +626,17 @@ Make sure your dev server is running, then:
   4. Keep going, or tell me "done" whenever you're ready to synthesize a winner
 ```
 
-**If BATCH mode:**
+**If JSON mode:**
 
 ```
-📝 Live Canvas ready — Batch mode
+📝 Live Canvas ready — JSON mode
 
 Variants are at: http://localhost:3000/__live_canvas
 
 Click "Add Feedback" (bottom-right), comment on elements, fill "Overall Direction", click Submit.
 Then paste the JSON/markdown here, or just tell me your feedback in plain English.
 
-(To enable Live mode next time, see the one-time setup printed at the top.)
+(To use Live mode next time: relaunch with `live-claude` and pick Live when /live-canvas asks.)
 ```
 
 ### Then proceed to Phase 5
@@ -681,6 +647,7 @@ Don't wait for the user to confirm they opened the browser — move on so the fe
 
 Running `pnpm dev` or `npm run dev` starts a long-running process that never exits. If you run it, you'll wait forever. The user likely already has their dev server running, or can start it themselves in another terminal.
 
+---
 
 ## Phase 5: Collect Feedback
 
@@ -711,7 +678,7 @@ make this more prominent
 
 If multiple `<channel>` tags arrive together, batch the acknowledgments but do each edit one at a time so the user's dev server hot-reloads visibly between changes.
 
-### Batch mode — interactive or pasted
+### JSON mode — interactive or pasted
 
 The Live Canvas includes a Figma-like feedback overlay. When presenting the lab, include these instructions:
 
@@ -822,6 +789,7 @@ Example response format to guide user:
 
 Then proceed to **Phase 6: Synthesize New Variant**.
 
+---
 
 ## Phase 6: Synthesize New Variant
 
@@ -853,6 +821,7 @@ If "Getting closer" or "Went the wrong direction", gather more specific feedback
 
 Then proceed to **Phase 7: Final Preview**.
 
+---
 
 ## Phase 7: Final Preview
 
@@ -884,6 +853,7 @@ Once user is satisfied:
 If "No, needs changes": gather feedback and iterate.
 If "Abort": proceed to **Abort Handling** below.
 
+---
 
 ## Abort Handling
 
@@ -901,6 +871,7 @@ When abort is detected:
    - "Are you sure you want to cancel? This will delete all the Live Canvas files I created."
 
 2. **If confirmed, clean up immediately:**
+   - If Live mode was active, call `mcp__live-canvas__channel_close` to release port 8788.
    - Delete `.claude-design/` directory entirely
    - Delete temporary route files (`app/__live_canvas/`, etc.)
    - Do NOT generate any implementation plan
@@ -909,12 +880,15 @@ When abort is detected:
 3. **Acknowledge:**
    - "Design exploration cancelled. All temporary files have been cleaned up. Let me know if you want to start fresh later."
 
+---
 
 ## Phase 8: Finalize
 
 When user confirms (selected "Yes, finalize it"):
 
 ### 8.1: Cleanup
+
+If Live mode was active, call `mcp__live-canvas__channel_close` to release port 8788 so another session can claim it.
 
 Delete all temporary files:
 - Remove `.claude-design/` directory entirely
@@ -987,6 +961,7 @@ Create `DESIGN_PLAN.md` in the project root:
 - [Any new tokens to add]
 - [Existing tokens to use]
 
+---
 
 *Generated by Live Canvas skill*
 ```
@@ -1036,6 +1011,7 @@ If new file:
 - **Styling approach:** [Tailwind classes, CSS modules, etc.]
 - **Existing primitives:** [Button, Input, Card, etc.]
 
+---
 
 *Updated by Live Canvas skill*
 ```
@@ -1045,6 +1021,7 @@ If updating existing file:
 - Update any conflicting guidance with latest decisions
 - Keep file concise and actionable
 
+---
 
 ## Error Handling
 
@@ -1070,6 +1047,7 @@ If cleanup is interrupted:
 - Provide manual cleanup instructions
 - Never leave partial state without informing user
 
+---
 
 ## Configuration Options
 
@@ -1079,6 +1057,7 @@ The plugin supports these optional configurations (via environment or project co
 - `DESIGN_KEEP_LAB`: If `true`, don't delete lab until explicit cleanup command
 - `DESIGN_MEMORY_PATH`: Custom path for Design Memory file
 
+---
 
 ## Example Session Flow
 

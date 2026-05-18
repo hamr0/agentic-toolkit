@@ -14,6 +14,89 @@ ballpark, grouped by milestone rather than per-commit.
   npm-style tooling integration).
 - README badges (version + license, plato-style; #2a4f8c).
 
+## [1.4.0] — 2026-05-18
+
+`live-canvas` matures: simpler overlay, robust channel server,
+JSON mode writes to disk. The live-canvas-channel MCP plugin (v0.5.0)
+gains explicit lifecycle tools, a capability gate that prevents
+silent feedback loss, and automatic takeover when a prior Claude
+session is holding the port.
+
+### Added
+- **Channel server: lazy port binding via MCP tools** —
+  `channel_open`, `channel_close`, and `batch_open`. Port 8788 is
+  only bound when the skill explicitly calls one. Plain Claude
+  sessions stay idle; multiple sessions can coexist with `/mcp`
+  green without racing for the port.
+- **Channel server: parent-flag capability gate** —
+  `channel_open` inspects the parent `claude` process's command
+  line and refuses to bind from sessions launched without
+  `--dangerously-load-development-channels`. Before this, a plain
+  `claude` could win the port and silently drop every notification
+  (POST 200 but no `<channel>` tag) — the "nothing landed" black
+  hole. Cross-platform: Linux `/proc/<ppid>/cmdline`, macOS/BSD
+  `ps -p <ppid> -o args=`, Windows `wmic`.
+- **Channel server: automatic sibling takeover** — when
+  `channel_open` finds port 8788 held by another instance of the
+  same plugin running as the same uid, it takes over (SIGTERM,
+  rebind, SIGKILL fallback). The taken-over pid is returned as
+  `took_over` so the skill can announce it. Foreign processes are
+  still refused with `{status: "in_use", holder_pid}` — the plugin
+  won't kill anything it doesn't own.
+- **JSON mode writes to disk** — channel server gains a
+  `POST /feedback-jsonl` route that appends submissions to
+  `<project>/.claude-design/feedback.jsonl`. Skill calls
+  `batch_open` (no flag gate) and sets the overlay's
+  `batchEndpoint` accordingly. Falls back to the legacy browser
+  download only when the MCP isn't running.
+- **SKILL.md Case D — explicit relaunch instructions** — when
+  the tool returns `no_channel_capability`, the skill prints the
+  exact `live-claude` command instead of a generic "Live mode
+  unavailable" error.
+- **Lab banner template** — new `templates/lab-banner.html`
+  ("temporary review surface") replaces the old per-mode banners.
+  Mode-agnostic, paste-once.
+
+### Changed
+- **Vanilla overlay everywhere** — deleted the React-specific
+  feedback components (~2300 lines). `overlay-vanilla.js` (one
+  file, plain DOM, zero deps) now works in every supported
+  framework, including React/Next.js/Vite via `<script>` +
+  `useEffect`.
+- **User-facing rename "Batch" → "JSON"** — the non-Live mode is
+  called "JSON mode" everywhere user-facing.
+- **Demo relocated to `dev/`** — `templates/demo/post-variants.html`
+  was never copied during real runs. Moved to `dev/post-variants.html`
+  at the skill root in each platform package.
+- **Explicit mode pick** — skill asks Live vs JSON via
+  `AskUserQuestion` every run instead of silently auto-detecting.
+- **SKILL.md mode-selection: replaced `curl /health` probe with
+  the `mcp__live-canvas__channel_open` tool call.** The tool's
+  structured result (`opened` / `already_listening` / `in_use` /
+  `no_channel_capability` / `took_over`) is authoritative.
+
+### Fixed
+- **Channel server shutdown race** — `server.close()` is async
+  but `process.exit()` was synchronous; stale processes held port
+  8788 indefinitely after the MCP host disconnected, breaking
+  `/reload-plugins` and subsequent sessions. Now uses a `closing`
+  guard and lets `server.close()` callback drive exit (500ms
+  unref'd ceiling).
+- **Overlay mode badge stale on re-expand** — collapsing and
+  re-expanding the overlay showed the wrong mode name after a
+  runtime live→batch fallback. Badge text now refreshes from
+  `state.mode` on every re-expand.
+- **`setup.sh` sudo guard** — bails when run with `sudo` instead
+  of silently installing into `/root/.claude/plugins/`.
+- **Silent channel black-hole when a plain `claude` won the port
+  race** — fixed by the capability gate above; the failure mode
+  can no longer occur.
+
+### Removed
+- React-specific feedback templates (`templates/feedback-react/`)
+  in all platform packages.
+- `INTEGRATION_NOTES.md` (draft notes superseded by README + SKILL).
+
 ## [1.3.0] — 2026-05-10
 
 `live-canvas` skill lands across all four platforms — design UI
