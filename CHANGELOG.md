@@ -8,6 +8,29 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+### Changed
+- **`/security` command hardened** across all four platforms
+  (Claude, Opencode, Ampcode, Droid). Replaces the five generic
+  categories with "the recurring six" — secrets in the repo,
+  tenant isolation, rate limiting, error handling past the happy
+  path, authorization beyond authentication (IDOR), and
+  inefficient data access (N+1) — plus an expanded "also scan
+  for" list (injection, trust boundaries, config, dependencies).
+  Output is now coverage-auditable: it reports which classes were
+  checked clean and which are N/A, not just the hits. Adds
+  read-only git/rg tooling (`git log`, `git grep`, `rg`) to
+  `allowed-tools`.
+- **`/ship` command hardened** across all four platforms. Now
+  detects the stack first (npm / pyproject / go.mod / Cargo /
+  Makefile) and runs only checks that exist, reporting each as
+  pass / fail / N/A. Adds security-relevant gates (ownership +
+  role authorization, rate limiting, data-access scoping/scaling)
+  and broadens `allowed-tools` across stacks (pnpm, yarn, pytest,
+  python, go, cargo, make).
+- **`/git-commit` (Claude) `allowed-tools` syntax fix** —
+  `Bash(git *)` → `Bash(git:*)` to match Claude Code's matcher
+  format.
+
 ### Infrastructure
 - Root `package.json` added (private; metadata only — this repo
   is multi-language, package.json is for the version badge and
