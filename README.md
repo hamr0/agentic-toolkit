@@ -11,7 +11,7 @@ Discover proven tools and structured frameworks to start vibecoding as a non-tec
 
 Featuring structured thinking frameworks, skills, and plugins that guide your AI collaboration for better results.
 
-👉 [Start Learning Vibecoding 101](docs/vibecoding-101-guide.md) - Essential guide for beginners
+[Start Learning Vibecoding 101](docs/vibecoding-101-guide.md) - Essential guide for beginners
 
 ---
 
@@ -35,11 +35,11 @@ Featuring structured thinking frameworks, skills, and plugins that guide your AI
 
 Works standalone out of the box. Optional: Add [Superpowers](https://github.com/obra/superpowers) framework for auto-triggering behavioral constraints if desired.
 
-**[Full Subagent Manual](ai/subagentic/subagentic-manual.md)** | **[Install Now](#-quick-start)**
+**[Full Subagent Manual](ai/subagentic/subagentic-manual.md)** | **[Install Now](#quick-start)**
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Option 1: NPX (Recommended - No Installation)
 
@@ -80,7 +80,7 @@ cp -rv ai/subagentic/ampcode/* ~/.config/amp/    # Amp
 
 ---
 
-## 📁 What's Included
+## What's Included
 
 ### Development Tools
 - **Interactive Installer**: `tools/dev_tools_menu.sh` - Choose and install Linux tools (Tmux, Neovim, etc.)
@@ -97,7 +97,7 @@ cp -rv ai/subagentic/ampcode/* ~/.config/amp/    # Amp
 **Installation Options**:
 - **Manual**: `cp -rv ai/subagentic/<platform>/* <install-path>/` (see table below)
 - **NPM Package**: `npx liteagents` - Auto-updates, no cloning ([repo](https://github.com/hamr0/liteagents))
-- **[📖 Subagentic Manual](ai/subagentic/subagentic-manual.md)** - Token loads, progressive disclosure, complete reference
+- **[Subagentic Manual](ai/subagentic/subagentic-manual.md)** - Token loads, progressive disclosure, complete reference
 
 | Platform | Agents | Skills/Commands      | Install Path | Project Path | Source Path |
 |----------|--------|----------------------|--------------|--------------|-------------|
@@ -115,13 +115,13 @@ cp -rv ai/subagentic/ampcode/* ~/.config/amp/    # Amp
 - **BYOK Config** (`ai/customize/byok`): Use Synthetic, GLM on OpenCode/Droid
 - **Agent Best Practices** (`ai/customize/config`): Agent tweaks and guidelines
 
-### 🔗 Optional: Superpowers Integration
+### Optional: Superpowers Integration
 
 Agentic Toolkit is **complete and self-sufficient**. Optionally add [Superpowers](https://github.com/obra/superpowers) for auto-triggering behavioral constraints (TDD must run first, verification before completion, fresh subagent isolation per task).
 
 ---
 
-## 📂 Directory Structure
+## Directory Structure
 
 ```
 agentic-toolkit/
@@ -153,21 +153,21 @@ agentic-toolkit/
 
 ---
 
-## 🎯 Who Is This For?
+## Who Is This For?
 
 This toolkit is designed for anyone wanting to maximize AI-powered development:
 
-✅ **Vibecoders** - Non-coders building with AI  
-✅ **Semi-technical users** - Some coding background, learning to leverage AI  
-✅ **Technical non-coders** - Strong technical knowledge without coding experience  
-✅ **Developers** - Wanting structured, proven AI workflows  
-✅ **Teams** - Needing standardized AI collaboration patterns
+- **Vibecoders** - Non-coders building with AI
+- **Semi-technical users** - Some coding background, learning to leverage AI
+- **Technical non-coders** - Strong technical knowledge without coding experience
+- **Developers** - Wanting structured, proven AI workflows
+- **Teams** - Needing standardized AI collaboration patterns
 
 **[Vibecoding 101 Guide](docs/vibecoding-101.md)** - Learn how to build software with AI without being a traditional coder.
 
 ---
 
-## 📖 Documentation
+## Documentation
 
 - [Vibecoding 101](docs/vibecoding-101.md) - Beginner's guide to AI-powered development
 - [Subagent Manual](ai/subagentic/subagentic-manual.md) - Complete agent reference with token loads
@@ -176,17 +176,17 @@ This toolkit is designed for anyone wanting to maximize AI-powered development:
 
 ---
 
-## 🆘 Support & Community
+## Support & Community
 
 ### Getting Help
-- ⭐ **[Star this repo](https://github.com/hamr0/agentic-toolkit)** for updates
-- 💬 **[Join Discord](https://discord.gg/SDaSrH3J8d)** for vibecoding support
-- 🐛 **[GitHub Issues](https://github.com/hamr0/agentic-toolkit/issues)** for bug reports
-- 💡 **[GitHub Discussions](https://github.com/hamr0/agentic-toolkit/discussions)** for questions
+- **[Star this repo](https://github.com/hamr0/agentic-toolkit)** for updates
+- **[Join Discord](https://discord.gg/SDaSrH3J8d)** for vibecoding support
+- **[GitHub Issues](https://github.com/hamr0/agentic-toolkit/issues)** for bug reports
+- **[GitHub Discussions](https://github.com/hamr0/agentic-toolkit/discussions)** for questions
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! See **[CONTRIBUTING.md](docs/CONTRIBUTING.md)** for guidelines.
 
@@ -200,12 +200,12 @@ We welcome contributions! See **[CONTRIBUTING.md](docs/CONTRIBUTING.md)** for gu
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-**Built with ❤️ for the vibecoding community** | [LinkedIn](https://linkedin.com/in/hamr)
+**Built with love for the vibecoding community** | [LinkedIn](https://linkedin.com/in/hamr)
 
 Ready to vibecode? Follow the Quick Start above!

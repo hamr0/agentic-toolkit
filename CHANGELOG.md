@@ -30,6 +30,12 @@ ballpark, grouped by milestone rather than per-commit.
 - **`/git-commit` (Claude) `allowed-tools` syntax fix** —
   `Bash(git *)` → `Bash(git:*)` to match Claude Code's matcher
   format.
+- **README cleaned of emoji** — removed decorative emoji from
+  headings, inline links, and list markers for a plain-text,
+  professional presentation. Emoji bullet lists ("Who Is This
+  For?", "Support & Community") converted to standard markdown
+  bullets; "Built with ❤️" now reads "Built with love"; fixed the
+  `#quick-start` anchor link that had depended on the heading emoji.
 
 ### Infrastructure
 - Root `package.json` added (private; metadata only — this repo
