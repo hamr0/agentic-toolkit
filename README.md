@@ -206,6 +206,4 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ---
 
-**Built with love for the vibecoding community** | [LinkedIn](https://linkedin.com/in/hamr)
-
-Ready to vibecode? Follow the Quick Start above!
+Ready to vibecode? Follow the Quick Start above! | [LinkedIn](https://linkedin.com/in/hamr)
