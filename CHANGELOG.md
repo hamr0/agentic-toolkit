@@ -8,7 +8,28 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [1.5.0] — 2026-05-26
+
+Friction memory pipeline redesigned; ships the previously-unreleased
+`/security`, `/ship`, and `/git-commit` hardening; prunes stale docs.
+
+### Added
+- **`docs/friction-README.md`** — canonical guide to the stash →
+  friction → remember (hot-memory) pipeline.
+
 ### Changed
+- **`/friction` redesigned: antigens come from observed user
+  reactions, not machine proxies** — clusters by what the user *said*
+  (content/phrase overlap) instead of `(signal, tool_pattern)`;
+  recurrence × severity drives the suggested artifact; only patterns
+  recurring across 5+ sessions load into hot memory. Pasted SSH/shell
+  output is no longer mistaken for friction, and profanity counts only
+  when it's aimed at the agent. Applied across all four platforms.
+- **`/remember` rewritten to consolidate from friction's short quotes,
+  never raw logs** — classifies agent-vs-self, drops self-corrections,
+  merges paraphrases, tiers antigens by recurrence, and surfaces
+  `self_suspect` for confirmation. MEMORY section renamed
+  `Preferences` → `Antigens`.
 - **`/security` command hardened** across all four platforms
   (Claude, Opencode, Ampcode, Droid). Replaces the five generic
   categories with "the recurring six" — secrets in the repo,
@@ -36,6 +57,16 @@ ballpark, grouped by milestone rather than per-commit.
   For?", "Support & Community") converted to standard markdown
   bullets; "Built with ❤️" now reads "Built with love"; fixed the
   `#quick-start` anchor link that had depended on the heading emoji.
+
+### Removed
+- **Pruned nine stale planning/spec docs** from `docs/` (agent
+  consolidation/cleanup plans, split summary, digraph notes,
+  subagents-and-skills, verification-and-isolation pattern, FAQ,
+  CONTRIBUTING) — superseded or merged into the README/guide.
+- Dead scaffolding in `friction.js`: the unused `overlap()` helper,
+  the `MIN_KW`/`MIN_INTER` constants, the unread `selfCount`
+  (superseded by `anySelf`), and the empty `top_files` field with its
+  unreachable renderer.
 
 ### Infrastructure
 - Root `package.json` added (private; metadata only — this repo
