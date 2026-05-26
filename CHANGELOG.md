@@ -8,6 +8,15 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+### Changed
+- **README simplified** (210 → 75 lines) to match the repo — AI
+  subagent kits for four tools plus per-distro Linux dev-tool setup
+  (`tools-debian`/`tools-fedora`). Dropped the marketing hero and the
+  Documentation / Support & Community / Contributing / License sections
+  (kept a one-line license note), and fixed dead links: the removed
+  `tools/` paths, the deleted `CONTRIBUTING.md`, and the
+  `vibecoding-101.md` filename typo.
+
 ## [1.5.0] — 2026-05-26
 
 Friction memory pipeline redesigned; ships the previously-unreleased
