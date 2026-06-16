@@ -67,7 +67,7 @@ docs/           # guides
 
 - [Subagent Manual](ai/subagentic/subagentic-manual.md) — agents, token loads, progressive disclosure
 - [Vibecoding 101](docs/vibecoding-101-guide.md) — beginner's guide to AI-powered development
-- [Hot-memory pipeline](docs/friction-README.md) — how `/stash`, `/friction`, and `/remember` work
+- [Hot-memory pipeline](docs/friction-README.md) — how `/stash` and `/remember` work (friction runs inside `/remember`)
 - [Agent Guidelines](ai/customize/config/AGENT_RULES.md) — AI collaboration guardrails
 
 ---
