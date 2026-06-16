@@ -9,6 +9,7 @@ ballpark, grouped by milestone rather than per-commit.
 ## [Unreleased]
 
 ### Fixed
+- **`friction.js` no longer crashes on a single malformed JSONL line** (mirrored from liteagents). The four tool copies under `ai/subagentic/*/.../friction/` parsed session logs and `friction_raw.jsonl` with bare `.map(line => JSON.parse(line))` — one corrupt line aborted the whole run. A new `parseJsonl(raw, source)` helper skips bad lines with a one-line stderr warning (line number + source) and keeps the good records; the whole-file `friction_analysis.json` read is now wrapped in try/catch (reports the file, exits 1).
 - **`ai/subagentic/subagentic-manual.md` restored after a range-sed corruption inherited from the 1.6.0 mirror.** The corruption originated upstream in liteagents (a range-sed with end-pattern `test-generate$` matched far past its intended scope and overwrote ~310 lines with duplicates of the "Simple Commands" bullet) and rode along to this repo when the file was copied in commit `bda2c0c`. Restored from the cleaned liteagents version; all renames and count updates intact.
 
 ### Removed
