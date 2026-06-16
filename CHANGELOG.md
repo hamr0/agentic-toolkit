@@ -8,6 +8,9 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+### Fixed
+- **`ai/subagentic/subagentic-manual.md` restored after a range-sed corruption inherited from the 1.6.0 mirror.** The corruption originated upstream in liteagents (a range-sed with end-pattern `test-generate$` matched far past its intended scope and overwrote ~310 lines with duplicates of the "Simple Commands" bullet) and rode along to this repo when the file was copied in commit `bda2c0c`. Restored from the cleaned liteagents version; all renames and count updates intact.
+
 ### Removed
 - **`ai/customize/memcp/`** — the experimental MCP memory server (semantic-search persistent memory for Claude Code). Internal tooling, not published. Removal clears the open Dependabot alert for `uuid < 11.1.1` (the only direct/indirect dep using uuid in this repo). README references in the `ai/customize/` description and the `Structure` block updated.
 
