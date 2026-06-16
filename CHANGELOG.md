@@ -8,6 +8,8 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [1.7.0] — 2026-06-16
+
 ### Changed
 - **`/friction` collapsed into `/remember`; hot-memory pipeline is now two commands (`/stash → /remember`)** (mirrored from liteagents). `/remember` runs `friction.js` itself (best-effort) against the tool's global sessions root — resolved from an editable, never-prompt probe list baked into `remember.md` (Claude/Droid/Amp/opencode + Codex/Antigravity; add your own at the top) — then consolidates. A no-sessions miss is surfaced loudly, never silently skipped. `/stash` now nudges toward `/remember` at ≥5 unprocessed stashes (derived count, no counter file). Each package's `/remember` writes the memory into its own agent config (`CLAUDE.md` / `AGENTS.md` / `AGENT.md`). Standalone `/friction` command removed across all four tool dirs (the `friction.js` script stays). Counts, catalogs, `subagentic-manual.md`, `opencode.jsonc`, `docs/friction-README.md`, and README updated.
 
