@@ -8,6 +8,9 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+### Removed
+- **`ai/customize/memcp/`** — the experimental MCP memory server (semantic-search persistent memory for Claude Code). Internal tooling, not published. Removal clears the open Dependabot alert for `uuid < 11.1.1` (the only direct/indirect dep using uuid in this repo). README references in the `ai/customize/` description and the `Structure` block updated.
+
 ## [1.6.0] — 2026-06-16
 
 Subagentic command set consolidated and verify-then-fix loops baked into

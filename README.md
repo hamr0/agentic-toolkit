@@ -19,7 +19,7 @@ lazygit, Kitty/Ghostty).
 - **Linux dev-tool setup** (`tools-debian/`, `tools-fedora/`) — per-distro
   scripts and guides to install and configure a terminal dev environment.
 - **Customization** (`ai/customize/`) — BYOK keys, a Claude Code LLM/MCP
-  switcher, Ollama configs, a memory MCP server, and agent guidelines.
+  switcher, Ollama configs, and agent guidelines.
 - **Marketplace** (`ai/marketplace/`) — curated subagents, plugins, skills, MCP
   servers, and workflows.
 
@@ -56,7 +56,7 @@ scripts.
 ```
 ai/
   subagentic/   # agent kits: claude, opencode, droid, ampcode (+ manual)
-  customize/    # byok, claude-switcher, ollama, memcp, config, skill-to-command
+  customize/    # byok, claude-switcher, ollama, config, skill-to-command
   marketplace/  # curated subagents, plugins, skills, mcp, workflows
 tools-debian/   # Linux dev-tool setup (Debian / Ubuntu)
 tools-fedora/   # Linux dev-tool setup (Fedora)
