@@ -65,7 +65,7 @@ Before any analysis, read (if exists):
 
 ## Slash Commands Available
 
-Use these during analysis: `/code-review`, `/security`, `/debug`, `/review`, `/verification-before-completion`
+Use these during analysis: `/diff-review`, `/security`, `/verify-done`
 
 ## Analysis Areas
 

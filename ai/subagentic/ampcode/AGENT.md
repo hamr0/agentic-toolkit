@@ -22,38 +22,33 @@ These subagents are available when using Ampcode CLI.
 | system-architect | Architect | Use for system design, architecture documents, technology selection, API design, and infrastructure planning |
 | ui-designer | UX Expert | Use for UI/UX design, wireframes, prototypes, front-end specifications, and user experience optimization |
 
-### Skills (10 total)
+### Skills (9 total)
 
 | ID | Description | Usage | Auto |
 |---|---|---|---|
 | brainstorming | Refines rough ideas into fully-formed designs through collaborative questioning | /brainstorming <session-type> <topic> | false |
-| code-review | Reviews implementation against plan or requirements before proceeding | /code-review <review-scope> <focus-areas> | false |
-| condition-based-waiting | Replaces arbitrary timeouts with condition polling to wait for actual state changes | /condition-based-waiting <condition-type> <timeout-specs> | false |
 | docs-builder | Create comprehensive project documentation with structured /docs hierarchy | /docs-builder | false |
-| root-cause-tracing | Systematically traces bugs backward through call stack to identify source | /root-cause-tracing <issue-description> | false |
+| trace-back | Systematically traces bugs backward through call stack to identify source | /trace-back <issue-description> | false |
 | skill-creator | Guide for creating effective skills and extending Claude capabilities | /skill-creator <skill-type> <skill-description> | false |
-| systematic-debugging | Four-phase debugging framework - investigate root cause before any fixes | /systematic-debugging <bug-or-error-description> | false |
-| test-driven-development | Write test first, watch it fail, write minimal code to pass | /test-driven-development <feature-or-behavior-to-test> | true |
-| testing-anti-patterns | Prevents testing mock behavior and production pollution with test-only methods | /testing-anti-patterns <testing-scenario> | true |
-| verification-before-completion | Requires running verification commands before making any success claims | /verification-before-completion <work-to-verify> | true |
+| debug-method | Four-phase debugging framework - investigate root cause before any fixes | /debug-method <bug-or-error-description> | false |
+| tdd-flow | Write test first, watch it fail, write minimal code to pass | /tdd-flow <feature-or-behavior-to-test> | true |
+| test-traps | Prevents testing mock behavior and production pollution with test-only methods | /test-traps <testing-scenario> | true |
+| verify-done | Requires running verification commands before making any success claims | /verify-done <work-to-verify> | true |
 
-### Commands (12 total)
+### Commands (9 total)
 
 | ID | Description | Usage |
 |---|---|---|
-| debug | Debug an issue systematically using structured investigation techniques | /debug <issue-description> |
-| explain | Explain code for someone new to the codebase | /explain <code-section> |
 | friction | Analyze session logs for failure patterns and behavioral signals | /friction <sessions-path> |
-| git-commit | Analyze changes and create intelligent git commits | /git-commit |
 | live-canvas | Design UI variations and collect click-to-annotate feedback from the browser (batch mode only on Amp) | /live-canvas |
 | optimize | Analyze and optimize performance issues | /optimize <target-area> |
 | refactor | Refactor code while maintaining behavior and tests | /refactor <code-section> |
 | remember | Consolidate stashes + friction into project memory | /remember |
-| review | Comprehensive code review including quality, tests, and architecture | /review |
+| diff-review | Comprehensive code review including quality, tests, and architecture | /diff-review |
 | security | Security vulnerability scan and analysis | /security |
 | ship | Pre-deployment verification checklist | /ship |
 | stash | Save session context for compaction recovery or handoffs | /stash ["optional-name"] |
-| test-generate | Generate comprehensive test suites for existing code | /test-generate <code-section> |
+| test-generate | Generate tests, run them, verify each one actually exercises the code | /test-generate <file> |
 
 All resources are auto-discovered from frontmatter in their respective directories:
 - **Agents**: `./agents/*.md`

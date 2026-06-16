@@ -113,57 +113,37 @@
     }
   },
   "command": {
-    "systematic-debugging": {
-      "template": "{file:./command/systematic-debugging.md}",
+    "debug-method": {
+      "template": "{file:./command/debug-method.md}",
       "description": "Systematic four-phase debugging framework - investigate root cause before any fixes"
     },
-    "verification-before-completion": {
-      "template": "{file:./command/verification-before-completion.md}",
+    "verify-done": {
+      "template": "{file:./command/verify-done.md}",
       "description": "Verify work meets requirements before marking complete - prevents incomplete deliverables"
     },
     "skill-creator": {
       "template": "{file:./command/skill-creator.md}",
       "description": "Create reusable skills with proper structure, validation, and documentation"
     },
-    "test-driven-development": {
-      "template": "{file:./command/test-driven-development.md}",
+    "tdd-flow": {
+      "template": "{file:./command/tdd-flow.md}",
       "description": "Write test first, watch it fail, write minimal code to pass - ensures tests actually verify behavior"
     },
-    "testing-anti-patterns": {
-      "template": "{file:./command/testing-anti-patterns.md}",
+    "test-traps": {
+      "template": "{file:./command/test-traps.md}",
       "description": "Identify and avoid common testing anti-patterns that create fragile, useless tests"
     },
-    "root-cause-tracing": {
-      "template": "{file:./command/root-cause-tracing.md}",
+    "trace-back": {
+      "template": "{file:./command/trace-back.md}",
       "description": "Trace issues to their root cause using systematic investigation techniques"
-    },
-    "condition-based-waiting": {
-      "template": "{file:./command/condition-based-waiting.md}",
-      "description": "Implement robust waiting mechanisms based on conditions rather than fixed delays"
     },
     "brainstorming": {
       "template": "{file:./command/brainstorming.md}",
       "description": "Facilitate structured brainstorming sessions with proven techniques and frameworks"
     },
-    "code-review": {
-      "template": "{file:./command/code-review.md}",
-      "description": "Conduct thorough code reviews with focus on quality, security, and maintainability"
-    },
     "docs-builder": {
       "template": "{file:./command/docs-builder/SKILL.md}",
       "description": "Create comprehensive project documentation with structured /docs hierarchy"
-    },
-    "debug": {
-      "template": "{file:./command/debug.md}",
-      "description": "Debug an issue systematically using structured investigation techniques"
-    },
-    "explain": {
-      "template": "{file:./command/explain.md}",
-      "description": "Explain code for someone new to the codebase"
-    },
-    "git-commit": {
-      "template": "{file:./command/git-commit.md}",
-      "description": "Analyze changes and create intelligent git commits"
     },
     "live-canvas": {
       "template": "{file:./command/live-canvas.md}",
@@ -177,8 +157,8 @@
       "template": "{file:./command/refactor.md}",
       "description": "Refactor code while maintaining behavior and tests"
     },
-    "review": {
-      "template": "{file:./command/review.md}",
+    "diff-review": {
+      "template": "{file:./command/diff-review.md}",
       "description": "Comprehensive code review including quality, tests, and architecture"
     },
     "security": {
@@ -203,7 +183,7 @@
     },
     "test-generate": {
       "template": "{file:./command/test-generate.md}",
-      "description": "Generate comprehensive test suites for existing code"
+      "description": "Generate tests, run them, and verify each test actually exercises the code (not just passes)"
     },
     "subagent-spawning": {
       "template": "{file:./command/subagent-spawning.md}",

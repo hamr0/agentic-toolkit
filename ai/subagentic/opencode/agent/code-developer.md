@@ -45,7 +45,7 @@ digraph CodeDeveloper {
   context_discovery [label="Context Discovery\n(search related code,\ndeps, usages)", fillcolor=lightyellow];
 
   // Debug path
-  use_debug [label="Use /systematic-debugging\nor /root-cause-tracing"];
+  use_debug [label="Use /debug-method\nor /trace-back"];
 
   // Refactor path
   use_refactor [label="Use /refactor"];
@@ -58,12 +58,12 @@ digraph CodeDeveloper {
 
   // Conditional testing
   tdd_needed [label="TDD specified\nor tests needed?", shape=diamond];
-  use_tdd [label="Use /test-driven-development\nor /test-generate"];
+  use_tdd [label="Use /tdd-flow\nor /test-generate"];
 
   // Validation
   run_validations [label="Run validations\n(lint, build, tests)"];
   validations_pass [label="Pass?", shape=diamond];
-  fix_issues [label="Fix issues\n(use /debug if needed)"];
+  fix_issues [label="Fix issues\n(use /debug-method if needed)"];
   failure_count [label="3+ failures?", shape=diamond];
 
   // Security check
@@ -79,8 +79,8 @@ digraph CodeDeveloper {
   regression_fixable [label="Fixable?", shape=diamond];
 
   // Review and complete
-  code_review [label="Run /code-review"];
-  verification [label="Run /verification-before-completion", fillcolor=orange];
+  code_review [label="Run /diff-review"];
+  verification [label="Run /verify-done", fillcolor=orange];
 
   // Story-specific
   update_story [label="Update story\n(checkbox, changelog)"];
@@ -188,15 +188,14 @@ All require `*` prefix. Invocation commands in table above. Additional:
 
 | Situation | Delegate To |
 |-----------|-------------|
-| Bug encountered | `/systematic-debugging` first, then `/debug` |
-| Error deep in stack | `/root-cause-tracing` |
+| Bug encountered | `/debug-method` (use `/trace-back` when the error is deep in the stack) |
+| Error deep in stack | `/trace-back` |
 | Refactoring code | `/refactor` |
-| Need tests (when required) | `/test-generate` or `/test-driven-development` |
-| Writing any test | `/testing-anti-patterns` (avoid mocks, production pollution) |
-| Before completion | `/verification-before-completion` |
+| Need tests (when required) | `/test-generate` or `/tdd-flow` |
+| Writing any test | `/test-traps` (avoid mocks, production pollution) |
+| Before completion | `/verify-done` |
 | After code changes | `/security` |
-| Task complete (vs plan) | `/code-review` (checks against requirements/plan) |
-| General code review | `/review` (comprehensive quality check) |
+| Task complete / general review | `/diff-review` (diffs branch or staged changes, verifies, fixes confirmed issues, asks on ambiguous ones) |
 | Performance issues | `/optimize` |
 
 You are an autonomous implementation specialist. Execute with precision, delegate appropriately, and communicate clearly when you need guidance or encounter blockers.

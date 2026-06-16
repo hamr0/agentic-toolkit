@@ -8,6 +8,79 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [1.6.0] — 2026-06-16
+
+Subagentic command set consolidated and verify-then-fix loops baked into
+the claim-shaped commands. Five 3-word skill slugs renamed to 2-word
+slugs. `/review` renamed to `/diff-review` to avoid collision with the
+Anthropic-official `code-review` plugin. Synced from `liteagents@2.9.0+`.
+
+### Changed
+- **`/review` → `/diff-review`** across all four tool packages
+  (claude, droid, opencode, ampcode). Avoids the name collision with the
+  Anthropic-official `code-review` plugin's `review` skill. The renamed
+  command absorbed the old `/code-review` (which had been workflow
+  ceremony for *requesting* reviews from a subagent) and now accepts a
+  file, branch (e.g. `/diff-review main` diffs `merge-base(main, HEAD)..HEAD`),
+  or explicit range (`main..HEAD`).
+- **Claim-shaped commands now verify → fix → ask.** `/diff-review`,
+  `/security`, `/optimize`, `/test-generate` all re-ground each cited
+  `file:line` before acting, auto-fix only confirmed + unambiguous +
+  no-contract-change findings, and stop to ask on uncertain claims,
+  multi-shape fixes, downstream-affecting changes, security primitives,
+  or "dead code" that may be intentionally kept. `/diff-review` ends
+  with a **Ready to merge? Yes / No / With fixes** verdict.
+- **`/refactor` now runs the tests after the edit** (lightweight pattern:
+  the user's input is the claim; tests are the verifier). Detects the
+  project's test command, runs it scoped to the affected area, reports
+  pass/fail. On failure stops and asks (revert / patch / update test)
+  rather than auto-reverting or pushing forward silently.
+- **`/test-generate` rewritten as a generate-and-verify-it-bites loop.**
+  Discovers existing framework (refuses to add a new runner), generates,
+  **runs the new tests**, and marks each one **biting** or **superficial**
+  by mentally swapping in a broken impl. Superficial tests (`expect(true).toBe(true)`,
+  mock-asserting-itself, setup-masked passes) count as a failure to ship.
+- **Skills renamed to short 2-word slugs.**
+  `systematic-debugging` → `debug-method` (4-phase framework, with its
+  4 pressure-test scenarios + creation log preserved).
+  `root-cause-tracing` → `trace-back` (with its `find-polluter.sh`
+  bisection helper preserved).
+  `testing-anti-patterns` → `test-traps` (now includes timing/polling
+  as Anti-Pattern 6 after the condition-based-waiting fold).
+  `test-driven-development` → `tdd-flow`. `verification-before-completion` → `verify-done`.
+  Resulting cluster reads scannably: `debug-method / trace-back / verify-done`
+  and `tdd-flow / test-generate / test-traps`.
+- **`condition-based-waiting` folded into `test-traps`** as Anti-Pattern 6:
+  Timeout-Based Waiting. Promotes the timing/polling guidance to
+  auto-trigger coverage (was previously manual-trigger only). Its
+  `example.ts` helper (`waitForEvent` / `waitForEventCount` / `waitForEventMatch`)
+  moves with it and is referenced from AP6.
+- **`installer/cli.js` banner derives counts from `package.json.description`**
+  — was hardcoded as `"11 agents + 23 commands per tool"` and drifted
+  silently. Now parses `11 specialized agents and 18 commands`
+  from the description, so the banner auto-tracks whenever the count
+  changes. Fallback values prevent crash on regex miss.
+
+### Removed
+- **`/code-review`** (was workflow ceremony for *requesting* reviews;
+  mostly overlapped `/diff-review`). Use `/diff-review` instead —
+  `/diff-review main` for branch-vs-main, no args for staged/working-tree.
+- **`/debug`** — was a thin echo of the `systematic-debugging` skill.
+  The renamed skill (`debug-method`) carries the real workflow with its
+  pressure-test scenarios.
+- **`/explain`** — 11 lines of "explain this code" with no real
+  constraints. The model does this naturally from a plain prompt.
+- **`/git-commit`** — Claude Code has built-in commit handling; the
+  other three tools don't need a thin wrapper either. Use natural-language
+  prompts instead.
+
+### Counts
+- Claude: 9 skills + 9 commands (was 11 skills + 12 commands).
+- Droid / Opencode / Ampcode: 18 commands per tool (was 23 commands).
+- `package.json` description updated to reflect the new totals.
+
+## [1.5.5] — 2026-06-16
+
 ### Changed
 - **README simplified** (210 → 75 lines) to match the repo — AI
   subagent kits for four tools plus per-distro Linux dev-tool setup
