@@ -89,13 +89,51 @@ sudo dnf install -y gstreamer1-plugins-{bad-\*,good-\*,base} \
 sudo dnf install -y ffmpeg ffmpeg-libs
 ```
 
-### Intel GPU freeze fix
+### Intel GPU fix — freeze / lid-close hang / screen corruption
+
+These three kernel params fix a cluster of Intel UHD 620 (Whiskey Lake) display
+issues on this laptop:
+- Random GPU freezes
+- **Lid-close hang** requiring a forced power-off
+- **Garbled / "broken screen" colors** after suspend or resume
+
+Symptom in logs: a flood of `i915 ... *ERROR* Atomic update failure on pipe A`
+(check with `journalctl -b -1 -k | grep -c "Atomic update failure"`).
+
+```
+i915.enable_psr=0 i915.enable_fbc=0 intel_idle.max_cstate=1
+```
+
+**Fedora 44 method (BLS / `grubby`)** — this is the current, correct way. The old
+`grub2-mkconfig` approach below does NOT work on F44's BLS bootloader.
+
+```bash
+# 1. Apply to all existing boot entries
+sudo grubby --update-kernel=ALL \
+  --args="i915.enable_psr=0 i915.enable_fbc=0 intel_idle.max_cstate=1"
+
+# 2. Persist for future kernels (template for new kernel installs).
+#    IMPORTANT: keep this on ONE line — a stray newline breaks kernel installs.
+#    Verify afterwards with: cat -A /etc/kernel/cmdline  (one $ at the very end)
+sudo cp /etc/kernel/cmdline /etc/kernel/cmdline.backup
+sudo sed -i 's/[[:space:]]*$//; s|$| i915.enable_psr=0 i915.enable_fbc=0 intel_idle.max_cstate=1|' /etc/kernel/cmdline
+
+# 3. Reboot, then verify the params are active:
+cat /proc/cmdline | grep -o 'i915[^ ]*'   # expect enable_psr=0 and enable_fbc=0
+```
+
+Rollback: `sudo grubby --update-kernel=ALL --remove-args="i915.enable_psr=0 i915.enable_fbc=0 intel_idle.max_cstate=1"` and restore `/etc/kernel/cmdline` from the backup.
+
+<details>
+<summary>Old pre-F44 method (grub2-mkconfig) — kept for reference, do not use on F44</summary>
+
 ```bash
 # Add to GRUB_CMDLINE_LINUX_DEFAULT in /etc/default/grub:
 i915.enable_psr=0 i915.enable_fbc=0 intel_idle.max_cstate=1
 
 sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 ```
+</details>
 
 ### Flatpak
 ```bash
@@ -146,7 +184,22 @@ echo -e "\uf015 \ue7c5 \uf121 \uf09b"
 
 Enable hibernation by configuring GRUB to resume from swap partition.
 
-**Important Note:** Kernel 6.8+ has a regression in the `intel_hid` driver that causes spurious wakeup events during hibernation on Dell/Intel laptops. This affects Dell Latitude 7400 and similar models. The fix below includes blacklisting the `intel_hid` module.
+> **⚠️ As of Fedora 44 (kernel 7.0+), the `intel_hid` blacklist is NO LONGER NEEDED.**
+> The kernel 6.8 regression (bug 218634) that caused spurious wakeups during
+> hibernation has been fixed upstream. Hibernation works cleanly on F44 with
+> `intel_hid` loaded normally. The blacklist steps below are kept for historical
+> reference / older kernels only — skip them on F44.
+>
+> If you previously blacklisted it, you can safely re-enable:
+> ```bash
+> sudo mv /etc/modprobe.d/blacklist-intel-hid.conf /etc/modprobe.d/blacklist-intel-hid.conf.disabled
+> sudo dracut -f && sudo reboot
+> # then test one cycle: sudo systemctl hibernate
+> ```
+> Note: the `resume=` kernel param and the dracut `resume` module below are the
+> standard, required way to enable hibernation — those always stay.
+
+**Historical note (kernel 6.8–6.x):** Kernel 6.8+ had a regression in the `intel_hid` driver that caused spurious wakeup events during hibernation on Dell/Intel laptops (Dell Latitude 7400 and similar). The blacklist below was the workaround.
 
 **Bug reference:** https://bugzilla.kernel.org/show_bug.cgi?id=218634
 
