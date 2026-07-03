@@ -8,6 +8,15 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [1.8.0] — 2026-07-03
+
+### Added
+- **`/release` command across all four tool packages** (claude, droid, opencode, ampcode). An end-to-end feature-delivery *orchestrator* that does not re-implement checks — it runs the existing gates (`/ship`, `/security`, `/diff-review`) under `/verify-done` discipline, then performs the release actions. Split by a hard gate: everything before is safe/read-only (preflight branch resolution, verify with fresh evidence + coverage table); everything after rewrites history and is confirmed step by step (docs update, semver bump, commit, push, PR, merge, tag). Publish stays manual (`workflow_dispatch` by design). Usage: `/release [branch]` — requires a feature branch, never releases `main`. Registered in `opencode.jsonc`; catalogs in each `AGENT(S)/CLAUDE.md` and `subagentic-manual.md` bumped (Claude/Amp 8→9 commands, Droid/OpenCode 17→18).
+- **`live-canvas` recategorized on Amp** from a command to a subagent in `ampcode/AGENT.md` (batch mode only on Amp).
+
+### Changed
+- `.litectx/` (local litectx index DB) added to `.gitignore`.
+
 ## [1.7.0] — 2026-06-16
 
 ### Changed
