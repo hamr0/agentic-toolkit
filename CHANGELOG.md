@@ -8,6 +8,9 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+### Changed
+- **Friction cluster ranking breaks equal-recurrence ties by intensity** (mirror from liteagents). Antigen/episode clusters were ordered by tier then recurrence, with equal-recurrence ties left to incidental order — so a mild reaction could outrank a far more intense one that recurred equally. Added a final tiebreak on median peak friction (already computed): the more intense reaction ranks first. Ranking-only — never promotes across the severity × recurrence 2×2 (a loud one-off stays an episode). Applied across all four tool packages (claude, droid, opencode, ampcode).
+
 ## [1.8.0] — 2026-07-03
 
 ### Added
