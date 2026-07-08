@@ -8,11 +8,24 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
-### Fixed
-- **Non-Claude helper dir renamed `friction/` → `remember/`** (opencode, ampcode, droid). These tools expect a command's bundled directory to share the command's name; `friction.js` is run by `/remember`, so it now lives in `remember/friction.js` (was the mismatched `friction/`). remember.md's bundle-path reference updated to match. Claude keeps `friction/` (no such naming constraint).
+## [1.9.0] — 2026-07-08
+
+Hot-memory pipeline changes mirrored from `liteagents@2.13.0` (plus the
+2.12.x-era mirrors that were sitting in Unreleased).
+
+### Added
+- **Antigen ledger (`/remember` step 4c)** (mirror from liteagents). Every behavioral rule now carries an evidence trail in `<tool-dir>/remember/ledger.json`: which mistake-class it targets (`class_hints` dedup key), the evidence that promoted it, and every phrasing ever tried (`attempts` — failed attempts are the rejected-edit buffer, never re-proposed). A class that fires again *while its rule is loaded* increments `recurred_while_hot`: at 2 the phrasing is marked failed and rephrased; after 2 failed phrasings the antigen is **ESCALATED** — removed from hot, recorded as a Fact, flagged for a human decision. Failure detection without statistics; instructions-only (no new code), identical across all four packages.
+- **`/remember` writes its run report** to `<tool-dir>/remember/report.md` (latest snapshot, overwritten each run).
 
 ### Changed
+- **Pipeline consolidated to two dirs, each owned by its command** (mirror from liteagents): `<tool-dir>/stash/` (`/stash`) and `<tool-dir>/remember/` (MEMORY.md, ledger.json, report.md, `.processed`, transient `friction/` output). Was three (`stash/`, `friction/`, `memory/`). `/remember` performs a one-time loud migration: pipeline files move, user-owned files in the old `memory/` stay put, stale friction output is discarded (always regenerated fresh).
+- **Claude's bundled dir joins the naming convention:** `claude/commands/friction/friction.js` → `claude/commands/remember/friction.js` — a command's helper dir is now named after the owning command in all four packages (the other three were renamed earlier, still in Unreleased below).
+- **`context-builder` reads/injects `<tool-dir>/remember/MEMORY.md`** (was `.../memory/MEMORY.md`) across all four packages; `/stash`'s consolidation-nudge backlog count reads `.../remember/.processed`; `subagentic-manual.md` path references updated.
 - **Friction cluster ranking breaks equal-recurrence ties by intensity** (mirror from liteagents). Antigen/episode clusters were ordered by tier then recurrence, with equal-recurrence ties left to incidental order — so a mild reaction could outrank a far more intense one that recurred equally. Added a final tiebreak on median peak friction (already computed): the more intense reaction ranks first. Ranking-only — never promotes across the severity × recurrence 2×2 (a loud one-off stays an episode). Applied across all four tool packages (claude, droid, opencode, ampcode).
+- **docs: `friction-README.md` → `remember-README.md`** (mirror from liteagents) — refreshed for the two-dir layout + ledger; README pointer updated.
+
+### Fixed
+- **Non-Claude helper dir renamed `friction/` → `remember/`** (opencode, ampcode, droid). These tools expect a command's bundled directory to share the command's name; `friction.js` is run by `/remember`, so it now lives in `remember/friction.js` (was the mismatched `friction/`). remember.md's bundle-path reference updated to match.
 
 ## [1.8.0] — 2026-07-03
 
