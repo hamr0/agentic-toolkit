@@ -8,6 +8,30 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [1.10.0] — 2026-07-10
+
+Hot-memory pipeline changes mirrored from `liteagents@2.14.0` and `liteagents@2.14.1`.
+
+### Added
+- **`/remember` bootstraps a standards-guide template** (mirror from liteagents). A new
+  `AGENT_RULES.md` (an AI agent collaboration/coding-standards guide) ships bundled next to
+  `friction.js` in all four packages. On first `/remember` run in a project, if
+  `<tool-dir>/remember/AGENT_RULES.md` doesn't already exist, it's copied from the bundled
+  template — never overwritten again after that, so local edits persist. When present, it's
+  injected into the agent config via its own independent marker pair
+  (`<!-- AGENT_RULES:START/END -->`), separate from the MEMORY.md block and framed as a
+  guide to consult when building something new — not hot context loaded every session.
+
+### Changed
+- **`/remember` extraction is parallel and model-agnostic** (mirror from liteagents). Step
+  2's per-stash extraction calls are now spawned as concurrent subagent calls instead of one
+  at a time. Every hardcoded `sonnet` mention (steps 2, 3, 4a) is replaced with "the mid-tier
+  model" — a new Guardrails note explains the intent (capable of semantic judgment,
+  cheaper/faster than the top reasoning tier; Sonnet is the Claude example, not a
+  requirement) so the instructions work unmodified across Claude/opencode/ampcode/droid
+  regardless of which models each tool has configured.
+- **`subagentic-manual.md`** documents both changes in its Hot Memory section.
+
 ## [1.9.0] — 2026-07-08
 
 Hot-memory pipeline changes mirrored from `liteagents@2.13.0` (plus the
