@@ -8,6 +8,18 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [1.11.0] — 2026-07-13
+
+Hot-memory pipeline change mirrored from `liteagents@2.15.0`.
+
+### Changed
+- **`/stash` delegates the write-up to a mid-tier-model subagent** (mirror from liteagents).
+  The session drafts the raw content inline (only it holds conversation context), then hands
+  off to a mid-tier-model subagent to expand and write the formatted stash file — dispatched
+  in the background where the tool supports it, falling back to writing inline otherwise.
+  Applied identically across all four packages.
+- **`subagentic-manual.md`** documents the new mechanism in its Hot Memory section.
+
 ## [1.10.0] — 2026-07-10
 
 Hot-memory pipeline changes mirrored from `liteagents@2.14.0` and `liteagents@2.14.1`.
