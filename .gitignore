@@ -8,3 +8,10 @@ tools/MENU_REORGANIZATION_SUMMARY.md
 /ai/customize/skill-to-command/test/
 /ai/customize/skill-to-command/CONVERTER_V2_STATUS.md
 /ai/customize/memcp/tasks/
+
+# Agent / IDE / tooling scratch — ignore EVERY dot-directory by default
+# (.claude, .litectx, .idea, .barebrowse, .vscode, and whatever the next tool
+# invents), then re-admit only the ones we actually ship. Default-deny beats
+# chasing each new scratch dir with its own line.
+.*/
+!.github/

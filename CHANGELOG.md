@@ -8,6 +8,10 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+### Changed
+
+- **Agent/IDE scratch gitignored and de-tracked.** `.gitignore` now default-denies every dot-directory (`.*/`), re-admitting only what ships (`.github/`). Per-machine agent/IDE state (`.claude/`, `.litectx/`, `.idea/`, …) regenerates locally and only added noise and churn; any already-committed copies are removed from tracking (local files kept on disk). Repo hygiene only.
+
 ## [1.11.0] — 2026-07-13
 
 Hot-memory pipeline change mirrored from `liteagents@2.15.0`.
