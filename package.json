@@ -1,6 +1,6 @@
 {
   "name": "agentic-toolkit",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "private": true,
   "description": "Structured AI development toolkit: 11 role-based subagents and 17 commands per tool plus a 3-phase workflow (PRD -> tasks -> sequential execution) across Claude, Opencode, Ampcode, and Droid.",
   "repository": {
