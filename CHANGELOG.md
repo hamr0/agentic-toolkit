@@ -12,6 +12,18 @@ ballpark, grouped by milestone rather than per-commit.
 
 - **Agent/IDE scratch gitignored and de-tracked.** `.gitignore` now default-denies every dot-directory (`.*/`), re-admitting only what ships (`.github/`). Per-machine agent/IDE state (`.claude/`, `.litectx/`, `.idea/`, …) regenerates locally and only added noise and churn; any already-committed copies are removed from tracking (local files kept on disk). Repo hygiene only.
 
+## [1.12.0] — 2026-08-04
+
+Dependency security fixes mirrored from `liteagents@2.15.3`.
+
+### Security
+- Merges Dependabot #14/#13: hono 4.13.0 (closes residual moderate ReDoS,
+  GHSA-8j4g-w8fx-2239), ip-address 10.4.0 (3 high SSRF/trust-boundary
+  advisories). Also applies `npm audit fix` for fast-uri 3.1.5 (high,
+  GHSA-7p8r-x3mc-p8w7) — not yet proposed as a separate Dependabot PR.
+  Transitive deps of the bundled live-canvas-channel plugin's MCP SDK.
+  Plugin audit: 3 → 0 vulnerabilities.
+
 ## [1.11.0] — 2026-07-13
 
 Hot-memory pipeline change mirrored from `liteagents@2.15.0`.
