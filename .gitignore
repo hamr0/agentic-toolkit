@@ -2,6 +2,9 @@
 .litectx/
 tools/MENU_REORGANIZATION_SUMMARY.md
 
+# Dependencies
+node_modules/
+
 
 /ai/marketplace/skill-to-command/tasks/
 /ai/marketplace/skill-to-command/test/
