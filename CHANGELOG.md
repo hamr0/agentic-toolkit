@@ -8,10 +8,15 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [1.12.1] — 2026-08-07
+
+Repo-hygiene and tooling housekeeping — no functional changes.
+
 ### Changed
 
 - **Statusline context indicator switched from an ASCII bar to a colored percentage.** `ai/customize/config/statusline-command.sh` replaced the 20-char `[==== ]` context-usage bar with a compact ` | NN%` readout that colors by pressure — green `<25%`, orange `<35%`, red otherwise. Synced from the live `~/.claude/statusline-command.sh`.
 - **Agent/IDE scratch gitignored and de-tracked.** `.gitignore` now default-denies every dot-directory (`.*/`), re-admitting only what ships (`.github/`). Per-machine agent/IDE state (`.claude/`, `.litectx/`, `.idea/`, …) regenerates locally and only added noise and churn; any already-committed copies are removed from tracking (local files kept on disk). Repo hygiene only.
+- **`node_modules/` gitignored.** No rule existed, unlike liteagents; a stray `node_modules/` under the bundled live-canvas-channel plugin showed as untracked noise. Nothing was previously tracked, so no de-tracking was needed.
 
 ## [1.12.0] — 2026-08-04
 
