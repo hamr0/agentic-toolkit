@@ -10,6 +10,7 @@ ballpark, grouped by milestone rather than per-commit.
 
 ### Added
 - **`ELI5` output style** (`ai/customize/config/ELI5.md`) — a Claude Code output style that asks for plain, minimal answers (small words, short sentences, at most two options when a decision is needed, exact paths/commands preserved).
+- **`STE100` output style** (`ai/customize/config/STE100.md`) — a Claude Code output style based on ASD-STE100 Simplified Technical English: short sentences, one instruction each, active voice, common words, condition-first phrasing, exact paths/commands.
 
 ## [1.12.1] — 2026-08-07
 
