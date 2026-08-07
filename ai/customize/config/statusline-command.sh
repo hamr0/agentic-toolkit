@@ -17,28 +17,20 @@ if git -C "$cwd" rev-parse --git-dir >/dev/null 2>&1; then
     fi
 fi
 
-# Create context bar if context info is available
+# Show context percentage used, if context info is available
 context_bar=""
 if [ -n "$remaining" ]; then
-    # Convert remaining percentage to used percentage
     used=$(printf '%.0f' $(echo "100 - $remaining" | bc -l))
 
-    # Create a 20-character bar
-    bar_length=20
-    filled=$(printf '%.0f' $(echo "$used * $bar_length / 100" | bc -l))
+    if [ "$used" -lt 25 ]; then
+        ctx_color=$(printf '\033[32m')   # green
+    elif [ "$used" -lt 35 ]; then
+        ctx_color=$(printf '\033[38;5;208m')   # orange
+    else
+        ctx_color=$(printf '\033[31m')   # red
+    fi
 
-    # Build the bar
-    bar="["
-    for ((i=0; i<bar_length; i++)); do
-        if [ $i -lt $filled ]; then
-            bar+="="
-        else
-            bar+=" "
-        fi
-    done
-    bar+="]"
-
-    context_bar=" $bar ${used}%"
+    context_bar=" | ${ctx_color}${used}%$(printf '\033[0m')"
 fi
 
 # Output the status line
