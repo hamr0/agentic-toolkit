@@ -8,6 +8,9 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+### Added
+- **`ELI5` output style** (`ai/customize/config/ELI5.md`) — a Claude Code output style that asks for plain, minimal answers (small words, short sentences, at most two options when a decision is needed, exact paths/commands preserved).
+
 ## [1.12.1] — 2026-08-07
 
 Repo-hygiene and tooling housekeeping — no functional changes.
