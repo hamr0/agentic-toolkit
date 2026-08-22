@@ -59,6 +59,13 @@ Mirrored from liteagents 2.16.0.
   in three of the four kits. The Always / Ask / Never rules it justified remain as binding
   prose, with a pointer to mirror them into whatever allow/ask/deny list a tool provides.
 - Stale v1 `docs-builder/templates.md` from the three non-Claude kits.
+- **`ai/customize/config/guardrails.py`** and the Guardrails section in
+  `ai/customize/config/AGENT_RULES.md` (a second, standalone copy that the subagentic sync
+  did not cover). The script was never tracked in git here — nor in liteagents — so
+  `AGENT_RULES.md`'s claim that the reference implementation "ships in this repo" was false
+  in both places. Generic uses of the word *guardrails* elsewhere (the model-tier heading in
+  `stash.md`/`remember.md`, the HR subagent, the vibecoding guide) are unrelated and were
+  left alone.
 
 ### Documentation
 - `subagentic-manual.md` claimed Ampcode ships a `skills/` directory (it does not) and
