@@ -12,6 +12,72 @@ ballpark, grouped by milestone rather than per-commit.
 - **`ELI5` output style** (`ai/customize/config/ELI5.md`) — a Claude Code output style that asks for plain, minimal answers (small words, short sentences, at most two options when a decision is needed, exact paths/commands preserved).
 - **`STE100` output style** (`ai/customize/config/STE100.md`) — a Claude Code output style based on ASD-STE100 Simplified Technical English: short sentences, one instruction each, active voice, common words, condition-first phrasing, exact paths/commands.
 
+## [1.13.0] — 2026-08-22
+
+Mirrored from liteagents 2.16.0.
+
+### Added
+- **docs-builder v2** in all four subagent kits — a bundled `docs-builder.cjs` (vanilla Node,
+  zero deps, eleven subcommands) that does every mechanical step, so the model is used only
+  for proposing themes and writing pages. Includes **Mode 0 reorg** (`discover` /
+  `apply-reorg`) to classify a whole corpus, plus `search`, `lint`, `ledger`, and `due`.
+  The script is byte-identical across claude / droid / opencode / ampcode.
+- **Bare `/docs-builder` asks instead of guessing** — three options via `AskUserQuestion`:
+  First run, Docs drift, Clean archive. An argument skips the question. "First run" carries
+  two stops: one guarding correctness (review the classification before anything is
+  `git mv`'d), one guarding cost (see the oversized list and its price before any split).
+- `/remember` step 7: a detect-only, crash-isolated docs reconcile check.
+- `docs/docs-builder-README.md`, linked from the README.
+
+### Changed
+- **docs-builder moved from a Claude skill to a Claude command.** Claude is now 11 subagents
+  + **8 skills + 10 commands** (was 9 + 9); the other three kits stay at 18 commands. A
+  same-named skill and command would collide, so `claude/skills/docs-builder/` was removed.
+- `package.json` description: 17 -> 18 commands per tool.
+
+### Fixed
+- **`friction.js` -> `friction.cjs` in all four kits.** A `.js` file cannot be `require()`d
+  in any project whose `package.json` declares `"type": "module"` — it throws before the
+  first line runs. This kit ships into arbitrary target repos, so the extension is a
+  portability requirement, not a style choice.
+- **Reorg could move files it promised never to move.** The never-move list existed only as
+  prose; the code protected three names at the top level of `docs/` and recursed into
+  dot-dirs and `node_modules/`. Now enforced by `PROTECTED_NAMES` at any depth, with a
+  dot-dir / `node_modules` skip.
+- **`REPO`-vs-cwd path split, 8 sites.** Run from outside the repo, the archive key-sync
+  silently no-opped, the citations gate LOUD-SKIPped so `validate` returned PASS on bad
+  citations, failure state split across two directories, and `apply-reorg` died right after
+  a successful `discover`.
+- **`/docs-builder` did not load on opencode at all** — `opencode.jsonc` pointed at a
+  `SKILL.md` that never existed in that kit. Also dropped a stale `subagent-spawning` entry.
+- Missing `argument-hint:` frontmatter (no parameter hint rendered) and `allowed-tools:`.
+- `logOp` ENOENT, `bm25Rank` crash on a missing source file, `search` result-count clamping.
+
+### Removed
+- **Guardrails section from `AGENT_RULES.md`.** It documented a Claude-Code-only `PreToolUse`
+  hook and pointed at a `guardrails.py` that does not ship in either repo — unusable guidance
+  in three of the four kits. The Always / Ask / Never rules it justified remain as binding
+  prose, with a pointer to mirror them into whatever allow/ask/deny list a tool provides.
+- Stale v1 `docs-builder/templates.md` from the three non-Claude kits.
+- **`ai/customize/config/guardrails.py`** and the Guardrails section in
+  `ai/customize/config/AGENT_RULES.md` (a second, standalone copy that the subagentic sync
+  did not cover). The script was never tracked in git here — nor in liteagents — so
+  `AGENT_RULES.md`'s claim that the reference implementation "ships in this repo" was false
+  in both places. Generic uses of the word *guardrails* elsewhere (the model-tier heading in
+  `stash.md`/`remember.md`, the HR subagent, the vibecoding guide) are unrelated and were
+  left alone.
+
+### Documentation
+- `subagentic-manual.md` claimed Ampcode ships a `skills/` directory (it does not) and
+  under-counted Droid/OpenCode at 17 commands. All four kits ship 11 subagents; only Claude
+  splits capabilities into skills + commands.
+- `AGENT_RULES.md` footer pointed at `.claude/memory/AGENT_RULES.md`, a directory renamed to
+  `remember/`; the three non-Claude copies also pointed at Claude's path.
+- Per-tool config filename swept through the non-Claude kits: `CLAUDE.md` -> `AGENT.md`
+  (ampcode) / `AGENTS.md` (droid, opencode).
+
+---
+
 ## [1.12.1] — 2026-08-07
 
 Repo-hygiene and tooling housekeeping — no functional changes.

@@ -68,6 +68,7 @@ docs/           # guides
 - [Subagent Manual](ai/subagentic/subagentic-manual.md) — agents, token loads, progressive disclosure
 - [Vibecoding 101](docs/vibecoding-101-guide.md) — beginner's guide to AI-powered development
 - [Hot-memory pipeline](docs/remember-README.md) — how `/stash` and `/remember` work (friction runs inside `/remember`)
+- [docs-builder](docs/docs-builder-README.md) — how `/docs-builder` reorganises a docs corpus, splits oversized docs, and tracks drift
 - [Agent Guidelines](ai/customize/config/AGENT_RULES.md) — AI collaboration guardrails
 
 ---
