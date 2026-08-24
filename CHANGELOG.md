@@ -12,6 +12,51 @@ ballpark, grouped by milestone rather than per-commit.
 - **`ELI5` output style** (`ai/customize/config/ELI5.md`) — a Claude Code output style that asks for plain, minimal answers (small words, short sentences, at most two options when a decision is needed, exact paths/commands preserved).
 - **`STE100` output style** (`ai/customize/config/STE100.md`) — a Claude Code output style based on ASD-STE100 Simplified Technical English: short sentences, one instruction each, active voice, common words, condition-first phrasing, exact paths/commands.
 
+## [1.14.0] — 2026-08-25
+
+Mirrored from liteagents 2.17.1.
+
+### Added
+- **docs-builder v3 in all four kits** — `discover` now *proposes* a bucket per file
+  (`product` / `logs` / `archive`, with `oversized` a separate boolean flag, not a bucket)
+  and stops; a classification interview fills in `bucket`, and only then does `apply-reorg`
+  move anything. The risk was never the model's judgement, it was a silent move — so the gate
+  is the fix. `reconcile`, `due` and `archive-cleanup` folded into the `reorg` front door.
+- **`cleanup <file>` — splitting is opt-in and per-file.** It measures, prints the cost, and
+  stops for an interview; `cleanup-apply` runs only once `labels.json` exists with exactly one
+  `core:true` theme. The core page keeps the original basename and returns to the original
+  document's own directory; the original is archived byte-identical, never edited.
+- **`search`** — zero-dependency BM25 over the corpus. Measured against reading the split
+  corpus whole: a tie (~73K tokens either way), so splitting is justified by recall, not cost.
+
+### Fixed
+- **Four move-chokepoint bugs**, each reproduced against the shipped script before being
+  fixed: a plan row containing `../` could move — and **delete** — a file from outside the
+  repo via the copy+unlink fallback; `archive README.md` archived the README because
+  `PROTECTED_NAMES` was enforced at two call sites but not at the chokepoint; `cleanup-apply`
+  died mid-split because `archive()` called `process.exit(2)` on a follow-up failure while
+  running in-process; and a symlink under `docs/` pointing outside the repo passed the new
+  path-confinement check, because `path.resolve()` does not dereference. All four now guarded
+  in `doArchive`.
+- **One index** — `index-flat` is the sole writer of `docs/index.md`; the themed per-split
+  index was removed after it silently overwrote a 37-row corpus map with its own 7 rows.
+- **`/remember`: one conversation counts once.** A fork or resume writes the same conversation
+  to several session files and the ledger was counting files. Sessions are now unioned on
+  shared message uuids (`sessions` authoritative, `session_ids` evidence), and the ledger
+  seeds a new entry only at `sessions >= 2`.
+
+- **`AGENT_RULES.md`'s TOC linked a nonexistent anchor** in the droid, opencode and ampcode
+  kits: entry 9 pointed at `#claudemd-stub` while the heading it names is `## AGENTS.md Stub`
+  / `## AGENT.md Stub`. This tree happened to carry the correct anchor and the *wrong*
+  settings path (`.claude/settings.json` in droid's rules) — each side right about a
+  different line. Fixed upstream first, then propagated, so both are correct here now.
+
+### Changed
+- `docs/docs-builder-README.md` and `docs/remember-README.md` refreshed from upstream — the
+  copies here still described v2 ("eleven subcommands", dated 2026-08-21).
+- All four subagent kits are now byte-identical to liteagents 2.17.1 (`node_modules` and
+  `variants.json` excluded) — the whole tree was diffed, not just the ported feature.
+
 ## [1.13.0] — 2026-08-22
 
 Mirrored from liteagents 2.16.0.
