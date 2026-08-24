@@ -12,9 +12,9 @@ ballpark, grouped by milestone rather than per-commit.
 - **`ELI5` output style** (`ai/customize/config/ELI5.md`) — a Claude Code output style that asks for plain, minimal answers (small words, short sentences, at most two options when a decision is needed, exact paths/commands preserved).
 - **`STE100` output style** (`ai/customize/config/STE100.md`) — a Claude Code output style based on ASD-STE100 Simplified Technical English: short sentences, one instruction each, active voice, common words, condition-first phrasing, exact paths/commands.
 
-## [1.14.0] — 2026-08-24
+## [1.14.0] — 2026-08-25
 
-Mirrored from liteagents 2.17.0.
+Mirrored from liteagents 2.17.1.
 
 ### Added
 - **docs-builder v3 in all four kits** — `discover` now *proposes* a bucket per file
@@ -45,9 +45,17 @@ Mirrored from liteagents 2.17.0.
   shared message uuids (`sessions` authoritative, `session_ids` evidence), and the ledger
   seeds a new entry only at `sessions >= 2`.
 
+- **`AGENT_RULES.md`'s TOC linked a nonexistent anchor** in the droid, opencode and ampcode
+  kits: entry 9 pointed at `#claudemd-stub` while the heading it names is `## AGENTS.md Stub`
+  / `## AGENT.md Stub`. This tree happened to carry the correct anchor and the *wrong*
+  settings path (`.claude/settings.json` in droid's rules) — each side right about a
+  different line. Fixed upstream first, then propagated, so both are correct here now.
+
 ### Changed
 - `docs/docs-builder-README.md` and `docs/remember-README.md` refreshed from upstream — the
-  copies here still described v2 ("eleven subcommands").
+  copies here still described v2 ("eleven subcommands", dated 2026-08-21).
+- All four subagent kits are now byte-identical to liteagents 2.17.1 (`node_modules` and
+  `variants.json` excluded) — the whole tree was diffed, not just the ported feature.
 
 ## [1.13.0] — 2026-08-22
 
