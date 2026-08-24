@@ -91,10 +91,42 @@ guessed. An antigen is a **triad**:
   (`/stash`), `session_abandoned`, `long_silence`. These never seed — they only add context
   or escalate, and only when they actually surround a real reaction.
 
+**One conversation counts once.** Recurrence is what promotes a rule, so a session has to
+mean a *conversation*, not a *file*. A fork or resume writes the same conversation to a
+second session file with its own name, and friction identifies a session by its filename —
+so without a guard, one reaction gets counted N times and can trip the promotion gate on
+its own. Friction collapses these before clustering: sessions sharing at least one message
+`uuid` are the same conversation. The cluster then carries **every** member's hash in
+`session_ids`, so the ledger matches the conversation under any of its filenames — a single
+canonical id would not survive, because the id's timestamp prefix falls back to file mtime
+and so re-sorts when a member is touched or ages out of retention. Each distinct reaction is
+counted once, deduped on (conversation, anchor timestamp, anchor signal); a reaction made
+after a fork diverges is a different timestamp, so genuinely separate reactions both survive.
+Measured on a real 4,937-file corpus: 9 such groups exist, covering 23 files (largest group
+5), and every uuid overlap found was a genuine duplicate — the rule never merged independent
+sessions.
+
+Finding the groups means parsing session files, so the pass is restricted to sessions that
+actually carry an anchor signal; one without an anchor can never produce a candidate. On the
+same corpus that is 84.1s → 53.0s per run with identical clustering. The cost: a fork sibling
+holding no anchor of its own is not discovered, so its hash is absent from `session_ids`
+(3 of 66 clusters). It could not have contributed evidence anyway, and it gains a hash the
+moment it gains a reaction.
+
+**A cluster with no user text cannot be severe.** If the matched context window holds no real
+words, there is nothing to classify and nothing to quote as evidence. Worse, an
+empty-context cluster short-circuits the self-correction filter (there is nothing to test),
+so a lone `user_correction` would auto-qualify as severe on no evidence at all. Such a
+cluster is therefore barred from the severe path rather than deleted: a curse, an interrupt
+cascade, or a real tool error still counts, and a bare correction with nothing to quote falls
+out through the ordinary severity/recurrence routing. Dropping them outright was tried first
+and was wrong — it silently killed the file-referent fallback, whose whole purpose is to
+describe a session too terse to quote.
+
 **Outputs (`.claude/remember/friction/`):**
 | file | contents |
 |---|---|
-| `antigen_clusters.json` | **the contract `/remember` reads** — clusters with `theme`, `suggested_artifact`, `confidence`, `severity`, `sessions`, `projects`, `contexts` (verbatim quotes), `preceding` (trigger), `self_suspect` |
+| `antigen_clusters.json` | **the contract `/remember` reads** — clusters with `theme`, `suggested_artifact`, `confidence`, `severity`, `sessions`, `session_ids` (all member files of a conversation; count from `sessions`, never from this list's length), `projects`, `contexts` (verbatim quotes), `preceding` (trigger), `self_suspect` |
 | `antigen_review.md` | human-readable version of the clusters |
 | `antigen_candidates.json` | raw per-reaction candidates before clustering |
 | `friction_raw.jsonl` | every detected signal |
@@ -105,6 +137,36 @@ guessed. An antigen is a **triad**:
   `.claude/remember/friction/` so the antigen data below is always fresh. If no sessions root
   resolves it says so out loud and consolidates stashes only — never silently skips.
 - Reads `.claude/stash/*.md` → **Facts** + **Episodes** (via sonnet, skipping already-processed stashes).
+  Stashes are handed out in **batches of up to 5 per agent, using as few agents as possible** —
+  one agent reading several sessions sees a lesson recur and writes it once, where one agent
+  per stash writes it once per stash and leaves the merge to catch the duplicates.
+- **Facts are rewritten and compressed on every run, never appended to.** The merge step gets
+  the existing facts + the new ones + the lessons of any episodes aging out, and returns the
+  **whole section rewritten**: new replaces old, near-duplicates fold into one line, and every
+  fact that can be shorter is made shorter. The output is normally *shorter* than the input.
+  A fact is **one line, ≤160 chars, stating a rule that changes future behaviour** — current
+  truth only, no version history, no `supersedes`, no narrative. Events are episodes, not facts.
+- **Episodes: keep the 10 most recent; older ones are folded, then deleted.** An aging episode's
+  *lesson* is handed to the fact rewrite; the narrative is removed. There is no episode archive —
+  git already holds the history, and an archive that is never loaded is not memory.
+- **A pre-write length gate runs BEFORE `MEMORY.md` is written, not after** — a check that
+  only runs post-write can merely describe damage already on disk. Every line in the draft
+  Facts section must be ≤180 chars, including lines carried over unchanged from the previous
+  file (the whole section is rewritten every run, so every line is this run's output). Over
+  180 must be shortened and re-checked. The only exemption is mechanical: a line whose single
+  longest backtick-quoted literal is itself over 100 chars. No judgement exemption exists —
+  the earlier version let a line stand if it "cannot be shortened without losing meaning," and
+  on a real run the model used that to exempt 91 of 94 fact lines (longest 1290 chars) as the
+  file's "established style." After the fix, the same corpus re-run for real came out 0 of 100
+  over, no exemptions claimed, 54 KB → 29 KB. Step 8 then runs the identical rule as a one-line
+  `awk` over the written file — a report, not a second gate — so the two counts can never
+  disagree.
+- **A quiet run still pays gate debt.** A run with no new stashes and no new antigens does not
+  skip straight to "nothing to consolidate" — it first runs the step-8 mechanical check against
+  the existing `MEMORY.md`. Only a 0-line result earns the early exit; any over-length line means
+  the exit is skipped and the Facts rewrite runs on the existing content with no new input. The
+  early exit used to sit above the rewrite, so a restored pre-fix file with 90 over-length lines
+  went through `/remember` untouched on a quiet run.
 - Reads `.claude/remember/friction/antigen_clusters.json` → **Antigens** (step 4):
   1. **Classify target** — sonnet decides agent-directed vs self-correction; drops the latter.
   2. **Semantic-merge** — sonnet groups same-complaint-different-words quotes friction left split.
@@ -121,9 +183,26 @@ guessed. An antigen is a **triad**:
      decision — enforcement (a hook) or accepted limit.
   2. **No duplicate rules** — new corrections are matched to existing classes by
      `class_hints` before anything new is minted.
+  3. **Counting is per conversation, never per file.** `sessions` is the authoritative
+     conversation count; `session_ids` only lists the FILES one conversation was written to
+     (a fork/resume carries every member's hash), and a count is never derived from
+     `session_ids.length`. None of a cluster's hashes present → a genuinely new conversation,
+     `sessions` += 1. Any hash already present → already counted — store the missing aliases,
+     change nothing else. Found live, not by review: a real `/remember` run rendered "no npm
+     for this" as 3 sessions for one conversation forked into three files, and a second entry
+     (2 files, 99 shared message `uuid`s) was inflated the same way — the loop had been
+     incrementing `sessions` once per hash instead of once per conversation. A nested
+     `session_ids` shape (`{id, seen}` per hash) was measured and rejected: the ledger already
+     stores that shape, so the trap would move, not close.
+  4. **A new entry needs `sessions` >= 2.** No match on a cluster with `sessions == 1` does not
+     seed a ledger row — a single occurrence has no recurrence to track yet, and seeding
+     singletons grows the ledger by dozens of never-recurring entries per run (three runs of the
+     old "no match → new entry" rule produced 30, 0, and 10 new entries). Friction re-scans every
+     session log on every run, so a mistake that recurs is seeded once it reaches 2. Merging a
+     1-session cluster into an EXISTING entry is unchanged — that is recurrence.
   Division of labor: **MEMORY.md is the render (read as guidance); the ledger is the
   record (checked, never injected).** Design + the POC evidence that shaped it:
-  `docs/antigen-gate-prd.md`.
+  `docs/product/antigen-gate-prd.md`.
 - Writes `MEMORY.md` (Facts / Episodes / Antigens), injects `@.claude/remember/MEMORY.md`
   into `CLAUDE.md`, and writes the run report to `.claude/remember/report.md`.
 - **Bootstraps `AGENT_RULES.md` once.** If `.claude/remember/AGENT_RULES.md` doesn't exist,
@@ -141,6 +220,18 @@ The original tool trusted machine proxies and graded whole sessions BAD, which p
 memory with noise (on a 253-session corpus, **15 false high-confidence preferences**, all
 built from exit-codes and `/stash` false positives — including the `/stash` help text
 mistaken for user feedback). The redesign inverts that into a two-barrier funnel:
+
+**Bound facts at the write bar, not by pruning.** Hot memory is loaded into every session, so
+size matters far more there than at consolidation time. Two rules do the bounding, and both sit
+at *entrance*: a fact must be a one-line rule (≤160 chars), and every run rewrites the whole
+section rather than appending to it. Nothing is pruned on age — non-recurrence is ambiguous
+(stale vs still-working), so an old rule that still holds must never be dropped for being old.
+
+**Compression is synthesis, not bookkeeping.** Rewriting 300 facts into 200 shorter ones is a
+judgement job, which is why it is a model step. Anything mechanical — the episode cap, the
+length check — is a counted operation with no model in the loop. This split is deliberate: on
+this project, model-driven bookkeeping measured **27%** reliable against **~100%** for the same
+work done by a script.
 
 **Guard the signal** → **require reinforcement** before anything becomes a hot antigen:
 
@@ -178,7 +269,88 @@ already runs.
 
 ---
 
-## 4. Status (as of 2026-07-10)
+## 4. Status (as of 2026-08-24)
+
+- **Session identity is content-based (2026-08-24).** Friction now collapses forked/resumed
+  session files into one conversation before clustering (shared message `uuid`), and bars a
+  cluster carrying no user text from the severe path. Both land in all four packages, covered
+  by the repo's first friction test suite (`tests/friction/friction.test.js`), written to fail
+  against the pre-fix script and observed doing so. A declared `forkedFrom` field exists and
+  was tried first — it catches only 5 of the 6 real duplicate groups (17% miss), so detection
+  is by content overlap instead. Threshold is one shared `uuid`, and every uuid overlap on the
+  real corpus was a genuine duplicate.
+
+  A review of the first cut found the collapse was only half done: the *session count* merged
+  but both files' reactions still reached the cluster, so `signals` kept double-counting.
+  Reactions are now deduped on (conversation, anchor timestamp, anchor signal). Two further
+  defects were found the same way and fixed — a `uuid` was accepted as any string, so a log
+  format emitting `""` or a constant would have unioned the whole corpus into one session and
+  frozen every recurrence count at 1 (now guarded on length and per-uuid fan-out; measured max
+  fan-out on the real corpus is 5); and the empty-context rule was deleting clusters rather
+  than downgrading them, which killed the file-referent fallback outright.
+
+  **It was corrective, not merely preventative.** Validated by running `/remember` on
+  bareloop, whose corpus holds 4 of the duplicate groups. That run found a live false
+  promotion already sitting in loaded memory: `ag-014` ("confirm a project publishes to npm")
+  rendered as **3 sessions** under Medium, but its evidence is a single reaction —
+  `no npm for this` — from ONE agentic-toolkit conversation that had been forked into three
+  session files and counted three times. The ledger had it right at 1 the whole time; the
+  render was the inflated copy. Traced at the time to friction's session accounting — but the
+  same shape of bug recurred on a later live run after this fix, and turned out to sit one
+  layer downstream, in the ledger's own hash counting (see "The ledger counted files, not
+  conversations" below).
+
+- **The ledger migration is "seed, do not count" (2026-08-24).** A defect found by the same
+  bareloop run. The migration clause said to start `session_ids` empty; the matching rules
+  said an absent hash is new evidence and increments `sessions`. On the one run where the set
+  IS empty those two are contradictory — every entry's own history reads as fresh recurrence,
+  and on a `hot` entry that also drives `recurred_while_hot`, which at 2 rewrites a rule that
+  never failed. bareloop carried two hot entries already at 1, so counting would have
+  force-rephrased both. Two separate runs avoided it only because the operator noticed and
+  overrode the text, which is the definition of a rule that must be mechanical. `remember.md`
+  now carries an explicit override: on the run that first populates `session_ids`, write the
+  ids and change nothing else — not `sessions`, not `last_seen`, not `recurred_while_hot`,
+  not `status`. Counting resumes on the next run.
+
+- **The ledger counted files, not conversations (2026-08-24).** Fork dedup made a cluster
+  carry every member file's hash in `session_ids`, but step 4c still looped per hash and
+  incremented `sessions` once per hash — turning fork dedup's own fix into file-counting one
+  layer down. Caught live, not by review: a real `/remember` run rendered "no npm for this" as
+  3 sessions and promoted it to Medium; friction had it right at `sessions:1` with three
+  hashes, and the spec inflated it downstream (2 of 66 clusters affected). Counting is now
+  stated as mechanical rather than judgement (see §2, "Updates the antigen ledger").
+
+- **Mechanical-only length gate (2026-08-24).** The pre-write gate's judgement exemption
+  ("cannot be shortened without losing meaning") let a real run exempt 91 of 94 fact lines
+  (longest 1290 chars) as "established style"; replaced with the single mechanical exemption —
+  a >100-char backtick literal (see §2). Re-run for real on the same corpus: 0 of 100 over,
+  no exemptions claimed, 54 KB → 29 KB.
+
+- **First regression net for the spec layer (2026-08-24).** `remember.md` is prose a model
+  executes, which the JS suite couldn't previously see — three spec defects (signals
+  double-counted, the ledger fix above, the length gate above) shipped silently in one day
+  before this existed. See "Regression net" below.
+
+- **Quiet runs still pay gate debt (2026-08-24).** The "nothing to consolidate" early exit sat
+  above the Facts rewrite, so a run with no new stashes and no new antigens never reached the
+  length gate — a restored pre-fix `MEMORY.md` with 90 over-length lines went through `/remember`
+  untouched. The exit now requires the step-8 mechanical check to return 0 lines against the
+  existing file first; any lines over means the rewrite runs anyway, on existing content with no
+  new input.
+
+- **The ledger seeds only on recurrence (2026-08-24).** "No match → new entry" seeded a row for
+  every unmatched cluster, and nearly every cluster is a 1-session one-off — three runs of the
+  rule produced 30, 0, and 10 new entries. A new entry now needs cluster `sessions` >= 2; a
+  1-session cluster is not recorded, since friction re-scans every log each run and seeds it once
+  it recurs. Merging a 1-session cluster into an existing entry is unchanged — that is recurrence.
+
+- **Facts are compressed, not accumulated (2026-08-23).** `/remember` now rewrites the whole
+  Facts section every run under a one-line/≤160-char bar, keeps the 10 most recent episodes and
+  folds-then-deletes the rest, batches stashes ≤5 per agent, and runs a mechanical length check
+  in its report. Measured on this toolkit's own bareloop corpus: `MEMORY.md` **168 KB → 48 KB**
+  (348 facts averaging 254 chars → 249 averaging ~130; 73 episodes → 10), which is roughly
+  **30k tokens off every session in that project**. Antigens and the 10 hot episodes came
+  through byte-identical.
 
 - **`AGENT_RULES.md` bootstrap shipped.** A standards-guide template ships bundled next to
   `friction.cjs` in all four packages; `/remember` copies it into `.claude/remember/` on
@@ -190,7 +362,7 @@ already runs.
   rejected-phrasing buffer, recurrence-while-hot lifecycle, ESCALATED lane. The prospective
   ON/OFF validation gate was POC'd against real data and **deferred** — signal density is
   ~an order of magnitude too thin (37 correction events across 681 sessions; every antigen
-  class a singleton). Numbers and the un-defer condition: `docs/antigen-gate-prd.md` §9.
+  class a singleton). Numbers and the un-defer condition: `docs/product/antigen-gate-prd.md` §9.
 - **Directory cleanup** — three dirs (`stash/`, `friction/`, `memory/`) consolidated to two
   (`stash/`, `remember/`); friction output moved under `remember/friction/`. `/remember`
   performs a one-time loud migration of legacy layouts (pipeline files only — user-owned
@@ -198,6 +370,21 @@ already runs.
 - **Injection fix** — the managed CLAUDE.md section now uses the explicit
   `@.claude/remember/MEMORY.md` path; the previous bare `@MEMORY.md` resolved to a
   nonexistent root-level file, so hot memory was silently not loading in Claude Code.
+
+### Regression net (2026-08-24)
+
+`tests/friction/friction.test.js` runs five invariants over **real captured outputs** in
+`tests/friction/fixtures/` — the first test the spec layer has ever had. `remember.md` is
+prose a model executes, so the JS suite couldn't previously see it: fact lines ≤180 chars with
+the one mechanical backtick exemption (I1), episodes ≤10 (I2), ledger `sessions` ≤ distinct
+conversation prefixes in `session_ids` (I3), `sessions` ≤ evidence count (I4), and cluster
+`sessions` == distinct conversations (I5). Known-bad fixtures are **detection** tests asserting
+the exact violation count — bareagent 90 of 94 facts over cap, privcloud's 181-char line,
+privcloud's `ag-006` counted as 2 sessions for one resumed conversation (99 shared message
+`uuid`s); the fixed run's output (`bareagent-fixed`, 0 of 100 over) is the **conformance** half
+of the same pair. Each detection path was watched failing under a tampered fixture before being
+trusted. The test runner's per-suite `expectedTests` is now a hard floor — fewer than declared
+fails the run — raised to 238 for friction.
 
 ### Earlier (2026-06-16)
 
