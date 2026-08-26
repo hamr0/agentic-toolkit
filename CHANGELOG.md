@@ -12,6 +12,59 @@ ballpark, grouped by milestone rather than per-commit.
 - **`ELI5` output style** (`ai/customize/config/ELI5.md`) — a Claude Code output style that asks for plain, minimal answers (small words, short sentences, at most two options when a decision is needed, exact paths/commands preserved).
 - **`STE100` output style** (`ai/customize/config/STE100.md`) — a Claude Code output style based on ASD-STE100 Simplified Technical English: short sentences, one instruction each, active voice, common words, condition-first phrasing, exact paths/commands.
 
+## [1.15.0] — 2026-08-26
+
+Mirrored from liteagents 2.18.0.
+
+### Changed
+- **`/remember`'s antigen step redesigned to classify-then-count, in all four kits.** The
+  LLM now makes one classification judgment per cluster (`drop` | existing `ag-NNN` |
+  `new:<theme>` with a classifier-authored one-line rule) — everything else (hash union,
+  dedup, promotion, rendering, checking) moved into deterministic code
+  (`friction.cjs count`/`render`/`check`/`migrate-attempts`). Root cause: a 15-repo audit
+  found MEMORY.md's Antigens section hand-drifted from the ledger in 14/15 repos, from the
+  model writing the same rule text in three places and doing hash/dedup arithmetic in prose.
+  New invariants I6-new (render(ledger) byte-equal to MEMORY.md's Antigens section) and I7
+  (`rule` == `attempts[last].rule`), plus an adopted-date gate so pre-fix evidence can't count
+  toward `recurred_while_hot`. `remember.md` rewritten as literal commands to run, not prose
+  to interpret.
+
+### Fixed
+- **`friction.cjs check` exited 0 when I6-new was NOT EQUAL** — only I7 could fail it, so an
+  automated caller saw a pass while MEMORY.md was hand-drifted from the ledger. Now exits 1 on
+  either invariant failing.
+- **`observing`→`hot` promotion wrote no history line and left `attempts[last].adopted` at
+  the candidate date**, so a conversation from before the rule went hot could wrongly count
+  toward `recurred_while_hot` on the next run. Promotion now appends
+  `promoted to hot (N sessions)` and re-stamps `adopted` to the run date.
+- **`/remember` could append near-duplicate episodes when re-processing already-filed
+  stashes.** Step 4b's episode rule now dedups before appending — merge into the existing
+  entry (by content, not title) instead of adding a second copy.
+- **A newly-created antigen entry's `rule` text was a literal placeholder string, not real
+  content.** The 4a classifier now emits the one-line rule alongside a `new:<theme>` label in
+  the same judgment; a `new:` cluster with `sessions >= 2` and no rule is reported as
+  malformed and creates nothing — never falls back to placeholder text.
+- **friction's severity axis was degenerate — every cluster it ever emitted was severe.**
+  Clusters are seeded only on an observed reaction, and the severe test accepted the same
+  signals used to seed the cluster in the first place. Measured 69/69 severe on a real
+  3170-session corpus. Severe now means intensity (a curse, an interrupt cascade, or a tool
+  error corroborating the reaction); a plain correction is mild.
+- **docs-builder: the config pointer search line and the JSON state directory drifted across
+  repos.** `CLAUDE.md`'s docs pointer now uses the same search line as `docs/index.md` itself
+  (was pointing at a stale `docs/README.md` reference); `docs/.docs-builder/` — regenerated,
+  per-clone machine state — is now gitignored on first run rather than landing in history by
+  accident of whichever repo ran `apply-reorg` first.
+- **24 more docs-builder/`/remember` spec-vs-script defects**, from an audit of both specs
+  against their scripts: `docs/.docs-builder/*` state resolved against the cwd while
+  `index.md`/ledger/config resolved against the repo root, splitting state when run from
+  anywhere but the root (now both resolve under the repo root at one chokepoint); a picker
+  flow that never stamped the ledger, so `due` said NOT due forever; friction falling through
+  to extract on the previous run's stale analysis when a scan found no sessions, clobbering
+  `antigen_clusters.json` (now a distinct exit code, no fallthrough); plus assorted stale
+  cross-references and wording. `/docs-builder` also could not find its own script when run
+  outside this repo — it now locates itself relative to its own command directory, the same
+  fix `/remember` already had for `friction.cjs`.
+
 ## [1.14.0] — 2026-08-25
 
 Mirrored from liteagents 2.17.1.
