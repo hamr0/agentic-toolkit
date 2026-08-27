@@ -135,6 +135,55 @@ sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 ```
 </details>
 
+### CPU pinned at low clocks — turbo disabled by tuned's `powersave` profile
+
+Symptoms show up all at once and are easy to misattribute to the browser, the network,
+or a DNS/ad-blocker setup:
+- Video playback stutters; Firefox's **Data Decoder** process spikes to ~90% CPU
+- Image-heavy pages render jerkily
+- General desktop sluggishness that survives every browser-side fix
+
+Root cause: tuned's `powersave` profile sets `no_turbo=1` and caps `scaling_max_freq` to
+the base clock. On the i7-8665U a **4800MHz turbo ceiling collapses to 1900MHz**, with
+cores idling at 400–800MHz. Temperatures stay cool (~44°C), so it does **not** present as
+thermal throttling — which is exactly why it gets missed.
+
+Diagnose:
+```bash
+tuned-adm active                                   # "powersave" is the culprit
+cat /sys/devices/system/cpu/intel_pstate/no_turbo  # 1 = turbo OFF
+grep -m1 "model name" /proc/cpuinfo                # note the chip's rated turbo clock
+echo "cur=$(($(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq)/1000))MHz"
+echo "max=$(($(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq)/1000))MHz"
+sensors | grep -i "Package id 0"                   # cool temps = NOT thermal throttling
+```
+
+Fix:
+```bash
+sudo tuned-adm profile balanced
+```
+
+Verify — `no_turbo` flips to `0`, the ceiling jumps to the rated turbo clock, and real
+clocks climb immediately:
+```bash
+cat /sys/devices/system/cpu/intel_pstate/no_turbo                                  # expect 0
+echo "max=$(($(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq)/1000))"  # expect 4800
+echo "cur=$(($(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq)/1000))"  # expect ~3000
+```
+
+Measured on this laptop: **400–800MHz → ~3000MHz actual clock, 1900 → 4800MHz ceiling.**
+
+Two things that look wrong afterwards but are not:
+- **`scaling_governor` still reads `powersave`.** That is `intel_pstate`'s default governor
+  on Fedora and it scales all the way to turbo. Don't chase it.
+- **On battery the cap partly re-engages.** Plug in AC for sustained load; `balanced` still
+  throttles harder on battery than on AC.
+
+If `no_turbo` stays `1` after switching profiles, turbo is disabled in the BIOS instead —
+check the firmware settings.
+
+Rollback: `sudo tuned-adm profile powersave`
+
 ### Flatpak
 ```bash
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
@@ -353,4 +402,9 @@ free -h && swapon --show
 
 # GPU freeze check
 cat /proc/cmdline | grep i915
+
+# CPU throttled? (no_turbo should be 0; cur should climb under load)
+tuned-adm active
+cat /sys/devices/system/cpu/intel_pstate/no_turbo
+echo "cur=$(($(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq)/1000))MHz max=$(($(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq)/1000))MHz"
 ```

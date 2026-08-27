@@ -8,7 +8,24 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [1.16.0] — 2026-08-27
+
 ### Added
+- **Fedora setup guide: CPU turbo fix for tuned's `powersave` profile**
+  (`tools-fedora/setup/FEDORA_SETUP.md`) — new Post-Install section documenting a
+  performance cap that presents as browser/network trouble rather than a CPU problem.
+  tuned's `powersave` profile sets `no_turbo=1` and pins `scaling_max_freq` to the base
+  clock; on the i7-8665U that drops a 4800MHz turbo ceiling to 1900MHz with cores idling at
+  400–800MHz, while temperatures stay ~44°C so it never looks like thermal throttling. The
+  visible symptoms are stuttering video (Firefox's Data Decoder spiking to ~90% CPU), jerky
+  image-heavy pages, and general sluggishness that survives every browser-side fix — found
+  after ruling out DNS/ad-blocking, VA-API hardware decode, the AV1 codec, and disk. Fix is
+  `sudo tuned-adm profile balanced`; measured result was 400–800MHz → ~3000MHz actual and
+  1900 → 4800MHz ceiling. Section includes diagnosis and verification commands, a BIOS-level
+  fallback when `no_turbo` stays `1`, rollback, and two false alarms called out explicitly
+  (`scaling_governor` still reading `powersave` is `intel_pstate`'s normal default; the cap
+  partly re-engages on battery). A matching CPU-throttle check was added to the guide's
+  Troubleshooting block.
 - **`ELI5` output style** (`ai/customize/config/ELI5.md`) — a Claude Code output style that asks for plain, minimal answers (small words, short sentences, at most two options when a decision is needed, exact paths/commands preserved).
 - **`STE100` output style** (`ai/customize/config/STE100.md`) — a Claude Code output style based on ASD-STE100 Simplified Technical English: short sentences, one instruction each, active voice, common words, condition-first phrasing, exact paths/commands.
 
