@@ -8,6 +8,27 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [1.17.0] — 2026-08-28
+
+Mirrored from liteagents 2.19.0.
+
+### Changed
+- **`docs/index.md` rows now list each doc's H2 headings, one per line, with a line range,
+  in all four kits.** Previously each row carried only an H1, a line count, and a link —
+  now each H2 gets its own indented line with a `(Lstart–end)` range, reusing the same
+  `headings()`/`fenceMask()` boundaries `scan` already writes to `outline.json`, so an
+  agent can find and slice-read a section without opening the doc. `## Archive` rows stay
+  H1-only — an archived doc is frozen history, not a live section to route into.
+- **`/remember` step 7 self-heals `docs/index.md` every run, in all four kits.** Any drift
+  `due` reports — new/moved/changed/deleted, not only the >=5-doc DUE threshold — now also
+  re-runs `index-flat` (script only, no model call), so the index stays current between
+  full `/docs-builder reorg` passes instead of waiting for one.
+- **`AGENT_RULES.md` demoted from an `@`-include to a plain path pointer, in all four
+  kits.** It was wired into the config file as an `@`-reference, which hot-loads the whole
+  file into every session even though it is documented as "not hot context." `MEMORY.md`
+  stays `@`-referenced (it is hot); `AGENT_RULES.md` is now a plain path line, read only
+  when designing or building something new.
+
 ## [1.16.0] — 2026-08-27
 
 ### Added
