@@ -8,6 +8,26 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [1.18.0] — 2026-08-30
+
+Mirrored from liteagents 2.20.0.
+
+### Changed
+- **`AGENT_RULES.md` spec layer, in all four kits.** The interview must happen but its
+  shape is the model's; the outcome is a PRD defined as a portal, not a deliverable, with
+  five minimum fields — problem & goal, go/no-go, out of scope, modules, open questions —
+  that every POC refines.
+- **Four one-sentence execution-order rules** (Sequence / Selection / Iteration / Verify)
+  added to Operating Flow: modules in PRD order, each POC a branch, POC→PRD→POC loop with
+  "everything built so far still works on its own" as the invariant, assert before moving.
+- **"Build incrementally" replaced by "One module at a time"** (works alone, then connects,
+  both proven) plus a separate **"No fitting to pass"** rule and matching Red Flag.
+- **New safeguard: never commit to `main`.** Branch, then propose `/code-review` followed
+  by `/release`; merge and release only on a named go.
+- Removed restated content: "AI Agent Instructions" section, "Safety First" bullet,
+  "POC scope" bullet, and the duplicated spec/POC prose in Communication Protocol and the
+  config-file stub.
+
 ## [1.17.0] — 2026-08-28
 
 Mirrored from liteagents 2.19.0.
