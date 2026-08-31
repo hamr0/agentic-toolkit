@@ -8,6 +8,18 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [1.19.1] — 2026-08-30
+
+Mirrored from liteagents 2.21.1.
+
+### Changed
+- **`AGENT_RULES.md` template points at `/branch-review`, in all four kits.** Three sites
+  still described the pre-2.21.0 topology: Operating Flow §2 and the Security invariants both
+  told the agent to run `/security` separately and lean on `/ship` as the security gate, and
+  the never-commit-to-`main` safeguard named `/code-review`. They now say: propose
+  `/branch-review` (general review plus a full `/security` audit, reports and never fixes),
+  then `/release` (which runs `/ship` as the mechanical pre-deploy gate).
+
 ## [1.19.0] — 2026-08-30
 
 Mirrored from liteagents 2.21.0.
