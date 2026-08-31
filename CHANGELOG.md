@@ -8,6 +8,41 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [1.19.0] — 2026-08-30
+
+Mirrored from liteagents 2.21.0.
+
+### Changed
+- **`/diff-review` renamed to `/branch-review`, in all four kits.** The command's subject is
+  the branch, not a diff — it reads whole files around each hunk and now runs a repo- and
+  history-scoped security audit — so the old name described neither its input nor its output.
+  Command counts unchanged.
+- **`/branch-review` gains effort levels and a second stage.** `low | medium | high | max`
+  (default `medium`) governs the general review's breadth; stage 2 delegates to `/security`
+  and **always runs it full at every level**. The verify pass is adversarial (try to break
+  each claim, not confirm it), and every surviving finding must carry a concrete failure
+  scenario — inputs/state → wrong output, crash, or exposure — or it is dropped.
+- **`/branch-review` and `/security` never edit code.** Both previously applied "confirmed and
+  unambiguous" fixes directly, contradicting the gate they are meant to be; `/security` also
+  lost `Edit` from its tool list. They report and escalate. `/security` behaves identically
+  standalone or as stage 2 — only the report's recipient changes.
+- **`/release` no longer reviews, and no longer touches the remote.** It gates on a review
+  precondition at the current HEAD SHA (a fix commit moves HEAD, so staleness forces a
+  re-review), releases the **current branch** only — no branch argument, and on `main` it
+  stops and asks — runs `/ship`, sweeps the docs, bumps the version, commits locally, then
+  **stops and reports the push → PR → merge → tag → publish sequence** for a human to
+  authorize.
+- **`/ship` is now purely mechanical.** Every item is answerable by running a command and
+  reading an exit code. Dropped four code-judgment checks that duplicated `/security` in
+  weaker form; the secrets grep stays deliberately. A check you did not run is a fail, and
+  **N/A requires a stated reason**.
+- **Worker guardrails, in `/branch-review`, `/release`, `/stash` and `/remember`.** The
+  mid-tier model rule no longer names vendor models (they drift, and these kits ship to four
+  tools); it says "your tool's balanced default tier" and explicitly excludes the
+  cheapest/fastest tier, which measurably degrades on judgment work. All four carry an
+  "escalate, never assume" rule, and `/stash` gains a "write only what the brief contains"
+  rule — its subagent expands a brief, which is exactly where fabrication happens.
+
 ## [1.18.0] — 2026-08-30
 
 Mirrored from liteagents 2.20.0.
