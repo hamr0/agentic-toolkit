@@ -8,6 +8,44 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [1.20.0] — 2026-09-01
+
+Mirrored from liteagents 2.22.0. Driven by the first real field runs of
+`/branch-review` (3 runs) and `/release` (1 run, which shipped a package).
+
+### Fixed
+- **`/branch-review` — a dirty tree is a hard stop, not a silent partial review.** The
+  staged/working-tree fallback only fired when the earlier step was empty, so a branch holding
+  both committed and uncommitted work reviewed the commits and silently skipped every
+  uncommitted line. The stop now names the paths, states that the command reviews commits and
+  not the working tree, and gives the remedy: commit, then re-run.
+- **`/release` — Phase 0 no longer commits a dirty tree for the user.** That produced a commit
+  *after* the review, which Phase 0.5 then had to reject by its own rule; a dirty tree is now
+  a stop that hands the work back.
+- **`/release` Phase 0.5 compares SHAs mechanically instead of asking the orchestrator.** The
+  worker runs `git rev-parse HEAD` itself and matches it against the review's recorded SHA —
+  the orchestrator is the party with an incentive to say yes, so its word is not evidence. No
+  recorded SHA, or a mismatch, is a stop.
+- **Self-contradicting tier guidance in `/branch-review`, `/release` and `/stash`.** "Your
+  tool's balanced default tier" plus "never hardcode a vendor model name" yields the
+  *parent's* tier when the tier is omitted, not the balanced one. Now: explicitly select your
+  tool's mid tier and state it on the spawn.
+
+### Changed
+- **`/branch-review` — test quality is a stage-1 item.** A test's ability to fail is proven by
+  reverting the *source* (`git show <base>:<path>` into a temp location outside the repo), not
+  the test. Prompted by a regression test that passed with its fix fully reverted, twice
+  reported as "proven red→green".
+- **`/branch-review` treats commit messages as claims to re-test, not evidence**, and the
+  review worker does its own work — no sub-spawning, since a relayed "I executed X" is hearsay.
+- **`/branch-review` reports the resolved target and re-checks `git status --porcelain` at
+  exit**, so "it never edits" is a checked fact; the verdict is printed at the top of the
+  report as well as the bottom.
+- **`/release` Phase 0 records local vs published version**, and Phase 3 treats a gap as the
+  ask-if-ambiguous trigger — a version cut on a branch and never published was previously
+  invisible to every step of the spec. The report also documents that `gh` requires an
+  explicit merge-method flag.
+
 ## [1.19.1] — 2026-08-30
 
 Mirrored from liteagents 2.21.1.
