@@ -477,3 +477,100 @@ cat .claude/remember/friction/antigen_clusters.json
 # human-readable:
 cat .claude/remember/friction/antigen_review.md
 ```
+
+## 6. Known limitations
+
+These are structural, not bugs on a backlog. Each one is a place where closing the
+gap costs more than the gap does — recorded here so the next person does not spend a
+session rediscovering that.
+
+### Matching semantics and evidence are the same channel
+
+A ledger entry's `class_hints` **are** fragments of the quotes that proved it. `ag-001`
+carries `"did you ground your check"` and `"fucking validate this after correction"`.
+Step 4a then hands the classifier `class_hints` + `rule` + `evidence.quotes` and asks
+whether a new cluster is that same mistake class. So an entry's *identity* — what
+distinguishes it from every other entry — is made of the same strings as its *evidence*
+that the mistake recurs. The two are coupled by construction.
+
+Two consequences follow, and they pull in opposite directions:
+
+- **Tautological matching.** A cluster can match an entry on the strength of the very
+  quotes that seeded it, which is a match against itself rather than against a new
+  occurrence. Session-hash dedup neutralises the common case — the same session cannot
+  be counted twice — but the identity is per session, not per quote, so it bounds the
+  damage rather than removing the cause.
+- **Over-matching on thin ledgers.** Where `class_hints` are short generic phrases,
+  they match ordinary frustration that shares a word. This is `Open item 2` in
+  `remember.md`, and it is why 4a requires a negative example ("`we're burning money,
+  why is it failing?` does NOT match") rather than the positive claim alone.
+
+**Within a single matching channel, decoupling either way makes the other worse.**
+Narrow matching to the `rule` and genuine recurrence phrased differently stops counting
+— recall gaps are the failure this pipeline exists to avoid. Widen it back onto the
+quotes and generic entries swallow unrelated clusters, which is the failure precision
+was chosen over recall to prevent. The negative-example requirement is the mitigation
+for that trade.
+
+The qualifier matters, because the trade is a property of having one channel rather
+than a law about the problem.
+
+**Open direction — match on the antecedent, not only the reaction.** Measured on a
+frozen 34-cluster corpus (2026-09-02), and half-built: the cheap version of this idea
+is dead, the real one is carried but not yet used.
+
+The first plan was to store a cluster's `preceding` — the agent action, its result and
+any error immediately before the reaction — on the ledger entry, so the stored side
+carried an antecedent too. That fails on content, not on plumbing. `preceding.action`
+is a tool-*name* sequence (`calls.slice(-2).join(' → ')`); `Bash` or `none` covers 21
+of 34 clusters. As a matching signature it gives 13 distinct values over 34 clusters, a
+19.3% collision rate — `Bash` against `Bash` is the same coin flip the quote channel
+already is. Repairing `preceding.result` first (it read result text for `Exit code 0`
+instead of the `is_error` boolean; fixed in `6e4a5e6`) was an honest fix with zero
+matching benefit: 14 → 13 distinct, 19.1% → 19.3%, because `result` is nearly
+determined by `action`, so the repair renamed the biggest bucket instead of splitting
+it. `tool_sequence` is no better: 10 distinct, 25.8%.
+
+The discriminative material is the **file referents** — the paths a cluster's sessions
+touched. They were already computed per candidate (74/101 populated) and silently
+dropped at clustering, so no cluster ever saw them. `ecf142c` carries them through and
+unions them per cluster, capped at 8 sorted. On the same corpus: **30 distinct
+signatures over 34 clusters at a 1.8% collision rate, 29/34 populated** — a 10×
+reduction against `preceding`, and better than the 28 / 3.7% a candidate-level join
+predicted, because the cluster union is richer than any single candidate.
+
+That result also corrects a prediction made here: the trade above assumed a richer
+antecedent would have to be *distilled*, reintroducing the LLM judgement 4a was
+narrowed to avoid. It does not. File paths are mechanical, so the second channel costs
+no judgement step at all.
+
+**What is not done.** Nothing stores `files` on a ledger entry and nothing shows it to
+the classifier at step 4a — the channel exists on the incoming side only, so matching
+today still runs on the single quote channel described above. Shipping the ledger half
+is gated on the same bar the `top_keywords` change had to clear: exact-label agreement
+measured on a frozen corpus with and without the antecedent (0.884 → ~0.97 was that
+change's number). Until that number exists, the collision-rate table is evidence the
+channel *can* discriminate, not evidence that matching improves.
+
+A related limit sits underneath all of this and is not addressed by any of it: the
+seed signal assumes a reaction indicates an agent mistake. In practice a share of them
+are over-prompting, thin context, or impatience — mistakes on both sides, in degrees
+that are never balanced. Since seed evidence becomes `class_hints`, that noise is what
+later matching runs *against*, so it compounds. `self_suspect` and
+`preceding.action === 'none'` (a reaction with no agent action before it) are the two
+mechanical cues that gesture at this, and both are currently only drop cues, never
+attributions. Deliberately so: asking *whether there was an agent action* is
+classification and is safe, while asking *whose fault it was* is scoring — and this
+pipeline uses the model as a classifier, never a scorer. Severity already degenerated
+once by being seeded and rated on the same signal; blame attribution would repeat it.
+
+### A run cannot tell that its own work invalidated a standing fact
+
+`/remember` writes facts from stashes and friction output. It has no way to notice that
+work done *in the same session* has just falsified a fact already in `MEMORY.md` — a
+fact asserting two files stay tracked survives a commit, in that same session, that
+gitignores them. Detecting this would mean re-checking every standing fact against the
+working tree on every run, and rewriting facts on that evidence is worse than leaving a
+stale one: the heuristic would be confidently wrong about facts it half-understood.
+Stale facts are corrected the way they were written — by a human noticing, or by the
+next run's extraction contradicting them outright.
