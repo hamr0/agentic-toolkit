@@ -8,6 +8,49 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [1.21.0] — 2026-09-03
+
+Mirrored from liteagents 2.23.0 and 2.24.0 — two releases, since 1.20.1 tracked 2.22.1.
+All four kits byte-identical to their liteagents originals after the sync.
+
+### Added
+- **`/refactor` gains a no-argument ledger mode**, working through
+  `.claude/remember/fix-ledger.md` instead of taking a target: clean tree and non-`main`
+  branch required, every bullet revalidated before anything is fixed, bullets whose anchor
+  no longer resolves dropped, survivors fixed one at a time, and each bullet deleted as its
+  fix lands — so the fix commit is the done record.
+- **`/branch-review` gains State ownership as a stage-1 finding category.** Two or more
+  functions assigning the same field is a finding on its own, no failing case required;
+  both writers must be named with `file:line`, and a write arriving from a callback, thread
+  or lifecycle event is the dangerous one.
+- **Four new Build Rules in `AGENT_RULES.md`**, each naming something observable: one writer
+  per piece of state; split the decision from the machinery; claims in comments must be
+  checkable; every line earns its place. "Surgical changes only" now says what to do with a
+  problem you pass on the way — fix it if it is in the code you are already changing and the
+  fix changes no behaviour, otherwise report it with what it costs to leave.
+- **`docs/branch-review-README.md`** — reference for the pre-merge gate, following the
+  existing `remember` / `docs-builder` product-doc pattern.
+- **Friction clusters carry file referents as a second matching signature.** Measured on a
+  frozen 34-cluster corpus before building: the per-cluster union of file paths gives 30
+  distinct signatures at 1.8% collision, against 13 at 19.3% for the `preceding` tool-name
+  sequence. Carried on the incoming side only — no ledger entry stores it yet.
+
+### Fixed
+- **Friction's `preceding.result` read the wrong signal** — text-matched `'Exit code 0'`
+  (1 hit in 2623 sampled blocks) instead of the `is_error` boolean (present on 2065/2624).
+  Was `unknown` on 31 of 34 clusters; now 18 claimed-success, 4 error, 12 unknown.
+- **`docs-builder` inbound references follow the core page back out of the archive.**
+  `cleanup-apply` archives the source then relocates the core page back to its original
+  path; nothing walked the rewritten inbound references back, leaving the corpus pointing
+  at the archive while the live page sat unreferenced. The split's own pages keep their
+  `sources:` pinned to the frozen copy, since they cite it by line number.
+- **`docs-builder` names its units** — the advisory counts files, the restore counts
+  references.
+- **The `CLAUDE.md` stub pointed at a path that does not exist.** It named
+  `.claude/memory/AGENT_RULES.md`, the pre-rename location; neither that directory nor
+  `.claude/remember/` exists in this repo, so the pointer had been dead since the rename.
+  Now points at `.claude/remember/AGENT_RULES.md`, which `/remember` bootstraps on first run.
+
 ## [1.20.1] — 2026-09-01
 
 Mirrored from liteagents 2.22.1. Two `docs-builder.cjs` bug fixes, in all four kits.
