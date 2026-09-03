@@ -8,6 +8,23 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+### Fixed
+- **Fedora setup guide: the documented CPU turbo fix did not persist**
+  (`tools-fedora/setup/FEDORA_SETUP.md`). The section added in 1.16.0 prescribed
+  `sudo tuned-adm profile balanced`, which is silently reverted whenever `tuned-ppd` is
+  enabled (Fedora's default): the desktop power-profile daemon owns `/etc/tuned/active_profile`
+  and rewrites it from its own setting. Caught on the same laptop a week later — the machine
+  was back on `power-saver` at ~900MHz with turbo off **while plugged into AC**, having
+  looked fixed at the time. The guide now says to set Balanced in the desktop power applet
+  (with `systemctl disable --now tuned-ppd` documented as the manual-override path), adds
+  `/etc/tuned/active_profile` and a `busctl` read of the daemon's `ActiveProfile` to both the
+  diagnosis and Troubleshooting blocks, and states outright that `power-saver` is not
+  battery-only. Also adds a measured three-profile comparison (`power-saver` ~900MHz/44°C,
+  `balanced` ~2900-3800MHz/59°C, `performance` ~4200MHz/80°C, all on AC) recommending
+  `balanced` — it matches `default=` in `ppd.conf`, so a forgotten choice at boot lands on
+  the same profile instead of degrading. Notes that `powerprofilesctl` may be absent even
+  when the daemon is running.
+
 ## [1.21.0] — 2026-09-03
 
 Mirrored from liteagents 2.23.0 and 2.24.0 — two releases, since 1.20.1 tracked 2.22.1.

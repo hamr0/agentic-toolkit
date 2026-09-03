@@ -148,9 +148,15 @@ the base clock. On the i7-8665U a **4800MHz turbo ceiling collapses to 1900MHz**
 cores idling at 400–800MHz. Temperatures stay cool (~44°C), so it does **not** present as
 thermal throttling — which is exactly why it gets missed.
 
+The profile is normally set by `tuned-ppd` from the desktop's power-profile applet, so this
+is usually reached by someone selecting "Power Saver" — not by editing tuned directly.
+
 Diagnose:
 ```bash
 tuned-adm active                                   # "powersave" is the culprit
+cat /etc/tuned/active_profile                      # what gets restored at boot
+busctl get-property net.hadess.PowerProfiles /net/hadess/PowerProfiles \
+  net.hadess.PowerProfiles ActiveProfile           # the desktop setting driving it
 cat /sys/devices/system/cpu/intel_pstate/no_turbo  # 1 = turbo OFF
 grep -m1 "model name" /proc/cpuinfo                # note the chip's rated turbo clock
 echo "cur=$(($(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq)/1000))MHz"
@@ -158,9 +164,26 @@ echo "max=$(($(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq)/1000))
 sensors | grep -i "Package id 0"                   # cool temps = NOT thermal throttling
 ```
 
-Fix:
+**Fix — set it in the desktop power UI, not with `tuned-adm`.**
+
+On Fedora with `tuned-ppd` enabled (the default), the desktop power-profile daemon owns the
+tuned profile: it writes `/etc/tuned/active_profile` from its own setting. A manual
+`sudo tuned-adm profile balanced` therefore **does not stick** — it is silently reverted on
+the next profile event or the next boot. Set **Balanced** in the desktop's power management
+applet instead; that persists and propagates down to tuned.
+
+The mapping lives in `/etc/tuned/ppd.conf`:
 ```bash
-sudo tuned-adm profile balanced
+[profiles]
+power-saver=powersave              # the bad state — turbo off, capped to base clock
+balanced=balanced                  # what you want
+performance=throughput-performance
+```
+
+Manual override, only if you do not want the desktop controlling it at all:
+```bash
+sudo systemctl disable --now tuned-ppd
+sudo tuned-adm profile balanced    # now /etc/tuned/active_profile is authoritative
 ```
 
 Verify — `no_turbo` flips to `0`, the ceiling jumps to the rated turbo clock, and real
@@ -169,20 +192,45 @@ clocks climb immediately:
 cat /sys/devices/system/cpu/intel_pstate/no_turbo                                  # expect 0
 echo "max=$(($(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq)/1000))"  # expect 4800
 echo "cur=$(($(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq)/1000))"  # expect ~3000
+cat /etc/tuned/active_profile                                                      # expect balanced
 ```
 
-Measured on this laptop: **400–800MHz → ~3000MHz actual clock, 1900 → 4800MHz ceiling.**
+Measured on this laptop, all on AC (clocks and temps are under light desktop load — both
+scale with what you are actually running):
 
-Two things that look wrong afterwards but are not:
+| profile | turbo | ceiling | actual clock | package temp |
+|---|---|---|---|---|
+| `power-saver` → `powersave` | off | 1900MHz | ~900MHz | 44°C |
+| `balanced` → `balanced` | on | 4800MHz | ~2900–3800MHz | 59°C |
+| `performance` → `throughput-performance` | on | 4800MHz | ~4200MHz | 80°C |
+
+**Prefer `balanced` over `performance`.** It costs ~25% clock for 21°C less heat and much
+less fan noise, and software video decode never needed more than 3GHz — the stutter was at
+900MHz. `balanced` is also the value of `default=` in `ppd.conf`, so if the daemon forgets
+the choice at boot it lands on the same profile rather than degrading.
+
+Three things that look wrong afterwards but are not:
 - **`scaling_governor` still reads `powersave`.** That is `intel_pstate`'s default governor
   on Fedora and it scales all the way to turbo. Don't chase it.
-- **On battery the cap partly re-engages.** Plug in AC for sustained load; `balanced` still
-  throttles harder on battery than on AC.
+- **`powerprofilesctl` may not be installed** even though the daemon is running. Read the
+  active profile over D-Bus instead:
+  ```bash
+  busctl get-property net.hadess.PowerProfiles /net/hadess/PowerProfiles \
+    net.hadess.PowerProfiles ActiveProfile
+  ```
+- **On battery the cap partly re-engages.** `ppd.conf` sets `battery_detection=true` and
+  remaps `[battery] balanced=balanced-battery`. Plug in AC for sustained load.
+
+`power-saver` is **not** battery-only — it engages and sticks on AC too. Observed here
+running at ~900MHz while plugged in, for days, after a manual `tuned-adm` fix appeared to
+work at the time. Always re-check `/etc/tuned/active_profile` rather than trusting that an
+earlier fix held.
 
 If `no_turbo` stays `1` after switching profiles, turbo is disabled in the BIOS instead —
 check the firmware settings.
 
-Rollback: `sudo tuned-adm profile powersave`
+Rollback: set **Power Saver** in the desktop power applet (or
+`sudo tuned-adm profile powersave` if you disabled `tuned-ppd`).
 
 ### Flatpak
 ```bash
@@ -405,6 +453,7 @@ cat /proc/cmdline | grep i915
 
 # CPU throttled? (no_turbo should be 0; cur should climb under load)
 tuned-adm active
+cat /etc/tuned/active_profile
 cat /sys/devices/system/cpu/intel_pstate/no_turbo
 echo "cur=$(($(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq)/1000))MHz max=$(($(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq)/1000))MHz"
 ```
