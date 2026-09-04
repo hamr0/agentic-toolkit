@@ -1,32 +1,43 @@
-# Agentic Toolkit
+<div align="center">
+
+```
+ █████╗  ██████╗ ███████╗███╗   ██╗████████╗██╗ ██████╗
+██╔══██╗██╔════╝ ██╔════╝████╗  ██║╚══██╔══╝██║██╔════╝
+███████║██║  ███╗█████╗  ██╔██╗ ██║   ██║   ██║██║
+██╔══██║██║   ██║██╔══╝  ██║╚██╗██║   ██║   ██║██║
+██║  ██║╚██████╔╝███████╗██║ ╚████║   ██║   ██║╚██████╗
+╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚═╝ ╚═════╝
+████████╗ ██████╗  ██████╗ ██╗     ██╗  ██╗██╗████████╗
+╚══██╔══╝██╔═══██╗██╔═══██╗██║     ██║ ██╔╝██║╚══██╔══╝
+   ██║   ██║   ██║██║   ██║██║     █████╔╝ ██║   ██║
+   ██║   ██║   ██║██║   ██║██║     ██╔═██╗ ██║   ██║
+   ██║   ╚██████╔╝╚██████╔╝███████╗██║  ██╗██║   ██║
+   ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝
+```
+
+**10 specialized agents · 18 commands & skills · Claude · Opencode · Ampcode · Droid**
+**— plus a full Linux terminal dev environment**
 
 <p align="center">
-  <img src="https://img.shields.io/github/package-json/v/hamr0/agentic-toolkit?label=version&color=2a4f8c" alt="version (auto from package.json)">
+  <img src="https://img.shields.io/github/package-json/v/hamr0/agentic-toolkit?label=version&color=2a4f8c" alt="version">
   <img src="https://img.shields.io/badge/license-Apache%202.0-2a4f8c" alt="license: Apache 2.0">
 </p>
 
-AI development subagents for Claude Code, OpenCode, Droid, and Amp — plus Linux
-setup scripts for a terminal dev environment (tmux, Neovim/LazyVim, zsh, fzf,
-lazygit, Kitty/Ghostty).
+</div>
 
----
+The agent kits here started as scaffolding for early LLMs that needed to be told
+everything. They aren't that anymore. Models got smarter, so the toolkit got thinner:
+specialists you call by name or that trigger themselves on domain, wide lanes instead of
+tight rails, constraints on *what* rather than scripts for *how*.
 
-## What's inside
+They're actively challenged, pruned and rewritten — things get renamed, added, and
+deleted as models improve. That churn is the point.
 
-- **Subagent kits** (`ai/subagentic/`) — 10 role-based agents plus skills and
-  slash-commands, ready to drop into each tool. See the
-  [Subagent Manual](ai/subagentic/subagentic-manual.md).
-- **Linux dev-tool setup** (`tools-debian/`, `tools-fedora/`) — per-distro
-  scripts and guides to install and configure a terminal dev environment.
-- **Customization** (`ai/customize/`) — BYOK keys, a Claude Code LLM/MCP
-  switcher, Ollama configs, and agent guidelines.
-- **Marketplace** (`ai/marketplace/`) — curated subagents, plugins, skills, MCP
-  servers, and workflows.
-
-## Install the subagents
+Around them sits the rest of the box: per-distro Linux dev-environment setup,
+BYOK/model-switching customization, and a curated marketplace.
 
 ```bash
-# NPM (recommended) — interactive installer, auto-updates
+# Agents — interactive installer, auto-updates
 npx liteagents
 
 # or copy manually for your tool
@@ -36,22 +47,161 @@ cp -rv ai/subagentic/droid/*    ~/.factory/          # Droid
 cp -rv ai/subagentic/ampcode/*  ~/.config/amp/       # Amp
 ```
 
-Invoke an agent with `@agent-name` (Claude/OpenCode/Amp) or
-`invoke droid agent-name` (Droid); run commands with `/command-name`.
+---
 
-## Set up Linux dev tools
+## The catalog
+
+**Agents** — invoke with `@name` (Claude / OpenCode / Amp) or `invoke droid name`.
+
+| Agent | What it's for |
+|---|---|
+| `1-create-prd` | Define scope as a PRD — a portal into the work, not a spec to obey |
+| `2-generate-tasks` | Break a PRD into granular, actionable tasks |
+| `3-process-task-list` | Execute tasks one at a time with review checkpoints |
+| `orchestrator` | Read intent, route to the right agent sequence |
+| `code-developer` | Implementation, debugging, refactoring |
+| `quality-assurance` | Test architecture, quality gates, risk assessment |
+| `feature-planner` | Epics, user stories, prioritization, backlog |
+| `market-researcher` | Market and competitive analysis, project discovery |
+| `system-architect` | System design, tech selection, API design, scale |
+| `ui-designer` | UI/UX, wireframes, prototypes, design systems |
+
+**Commands & skills** — `/name`. Three of them fire on their own when the situation matches.
+
+| Command | What it's for |
+|---|---|
+| `/stash` | Snapshot this session's context before compaction or handoff |
+| `/remember` | Fold stashes + friction into hot project memory |
+| `/docs-builder` | Reorg, index, and split a docs corpus so search actually finds things |
+| `/branch-review` | Full pre-merge review — blockers reported, nits to the fix ledger |
+| `/release` | Docs sweep, version bump, local commit, then hand back the merge sequence |
+| `/refactor` | Clear the fix ledger; with args, refactor a named area |
+| `/security` | Standalone vulnerability audit (also stage 2 of `/branch-review`) |
+| `/ship` | Mechanical pre-deploy gate — tests, build, tree state, pass/fail only |
+| `/test-generate` | Generate a test suite and verify each test exercises real code |
+| `/optimize` | Performance analysis on a named target |
+| `/brainstorming` | Turn a rough idea into a formed design by questioning |
+| `/debug-method` | Four-phase debugging — root cause before any fix |
+| `/trace-back` | Walk a deep error backward to its original trigger |
+| `/live-canvas` | UI variations with click-to-annotate feedback in the browser |
+| `/skill-creator` | Build a new skill |
+| `/tdd-flow` ⚡ | Test first, watch it fail, then minimal code |
+| `/test-traps` ⚡ | Stop mocking anti-patterns and test-only production code |
+| `/verify-done` ⚡ | No "it works" claim without a command run behind it |
+
+<sub>⚡ = auto-triggering (Claude Code). Claude Code gets the full subagent system; Opencode, Ampcode and Droid get the same 18 commands plus agent reference docs.</sub>
+
+---
+
+## The ones that carry the load
+
+### `AGENT_RULES.md` — the architect behind every project
+
+One lightweight, generic, model-agnostic rules doc. It sets **what** matters and leaves
+wide room on **how**: simple over clever, every line has a purpose, surgical changes,
+exhaust the stdlib before reaching for a dependency, POC before you design.
+
+With smarter models a PRD is a **portal, not a deliverable** — the start of a
+conversation. You discover it module by module, reviewing, changing and deleting as
+experience arrives, instead of pinning everything down up front.
+
+It is loaded every session, linked from `CLAUDE.md`, and `/remember` keeps it fresh —
+each run byte-compares your copy against the template that shipped with your install.
+
+| your copy | what happens |
+|---|---|
+| identical | nothing — no write, no output |
+| missing | copied in |
+| different | moved to `AGENT_RULES.md.bak`, template copied in, both reported |
+
+Edits are never destroyed, but they aren't preserved in place either. `.bak` is a
+*single* file the next update overwrites — a customised body survives one release, not two.
+
+### `/stash` → `/remember` — the daily driver
+
+```
+/stash  ──►  /remember
+capture      consolidate
+```
+
+**`/stash`** is project-local: one session, one feature or scope or goal. Start fresh
+on delivery, or when context hits ~30% (never past 40%). The stash is the clean handoff
+to the next session.
+
+**`/remember`** fires on the nudge every 5 stashes. It folds those 5 in — and it also
+reads across *all* your projects, mining session logs for where you and the model
+actually collided: corrections, dead ends, abandoned flows. Those become rules, so the
+next session is less wrong than this one.
+
+Markdown files, no database, no RAG, always hot in context, and it keeps the nuances of
+each project separate. Runs on a mid-tier model.
+
+### `/docs-builder` — the other daily driver
+
+Markdown gets out of hand. A token-hungry agent then can't find the knowledge that
+matters. (Its own PRD grew from 500 lines to 3k+ as findings piled in — exactly the
+problem it exists to solve.)
+
+It indexes everything under `/docs` in four buckets — `product/`, `logs/`, `wiki/`,
+`archive/` — reorganizes, indexes, and splits oversized docs so you don't have to.
+Mid-tier model.
+
+### `/live-canvas` — the UI every agent CLI was missing
+
+A terminal agent can't see your screen, and you can't describe "that padding, on that
+card, but only on mobile" in words without burning ten minutes.
+
+`/live-canvas` spins up one lightweight localhost page with your UI on it. You **click
+the thing that needs changing**, type what you want, and submit. Comment on as many
+elements as you like, all in one pass, then send the batch to the agent.
+
+Two ways it comes back:
+
+- **JSON mode** — feedback lands in a file, you tell the agent to read it. Works in any tool.
+- **Live mode** — an MCP channel streams each comment straight into the session, so edits
+  land while you're still in the browser. Claude Code only.
+
+It also ships with real UI direction baked in, so it can generate variations of a screen
+for you to pick from — no more hours spent nudging divs to find out what you actually wanted.
+
+### `/branch-review` → `/release` → `/refactor`
+
+- **`/branch-review`** — the powerhouse. Reviews every change on a branch, medium depth
+  by default. Surfaces confirmed blockers only: real bugs, dead and unused code,
+  state-ownership breaks, plus a full OWASP-shaped security pass (no leaked keys, no
+  injection, trust boundaries checked) that runs at full depth regardless of level.
+  Everything non-blocking goes to the fix ledger.
+- **`/release`** — does the pre-release chores you'd otherwise do by hand: README,
+  CHANGELOG, PRD, findings, version bump, local commit. Then it tells you you're ready
+  to merge, and hands the sequence back. It never pushes.
+- **`/refactor`** — with no arguments, works the fix ledger. Cumulative by design: nits
+  pile up until you choose to clear them, so review and release never drown in them.
+
+---
+
+## The rest of the box
+
+### Linux dev environment
 
 ```bash
-# pick your distro, then follow the interactive menu
 ./tools-fedora/dev_tools_menu.sh    # Fedora
 ./tools-debian/dev_tools_menu.sh    # Debian / Ubuntu
 ```
 
-The menu installs and configures CLI tools, editors, and terminals. Per-tool
-guides (tmux, LazyVim, zsh, fzf, lazygit, Kitty, Ghostty) live alongside the
+An interactive menu that installs and configures a terminal dev setup — tmux,
+Neovim/LazyVim, zsh, fzf, lazygit, Kitty/Ghostty. Per-tool guides live next to the
 scripts.
 
-## Structure
+### Customization (`ai/customize/`)
+
+BYOK keys, a Claude Code LLM/MCP switcher, Ollama configs, and the shared agent
+guidelines.
+
+### Marketplace (`ai/marketplace/`)
+
+Curated subagents, plugins, skills, MCP servers, and workflows.
+
+### Layout
 
 ```
 ai/
@@ -63,16 +213,20 @@ tools-fedora/   # Linux dev-tool setup (Fedora)
 docs/           # guides
 ```
 
-## Docs
+---
 
-- [Subagent Manual](ai/subagentic/subagentic-manual.md) — agents, token loads, progressive disclosure
-- [Vibecoding 101](docs/vibecoding-101-guide.md) — beginner's guide to AI-powered development
-- [Hot-memory pipeline](docs/remember-README.md) — how `/stash` and `/remember` work (friction runs inside `/remember`)
-- [docs-builder](docs/docs-builder-README.md) — how `/docs-builder` reorganises a docs corpus, splits oversized docs, searches them, and tracks drift
-- [branch-review](docs/branch-review-README.md) — the pre-merge gate: three stages, what blocks a merge, and the `/branch-review` → fix ledger → `/refactor` loop
-- [live-canvas](ai/subagentic/claude/skills/live-canvas/README.md) — the two modes, the click-to-annotate channel, and the Claude Code plugin setup
-- [Agent Guidelines](ai/customize/config/AGENT_RULES.md) — AI collaboration guardrails
+## Deeper docs
+
+| Document | What's in it |
+|---|---|
+| [`/remember`](docs/remember-README.md) | The `/stash` → `/remember` pipeline, friction sensor, antigen ledger |
+| [`/docs-builder`](docs/docs-builder-README.md) | Reorg and cleanup modes, measured cost, the drift ledger |
+| [`/branch-review`](docs/branch-review-README.md) | The three stages, what blocks, the fix-ledger loop |
+| [`/live-canvas`](ai/subagentic/claude/skills/live-canvas/README.md) | Both modes and the Claude Code channel plugin setup |
+| [`AGENT_RULES.md`](ai/customize/config/AGENT_RULES.md) | The rules doc itself |
+| [All agents & commands](ai/subagentic/subagentic-manual.md) | Full reference, token loads, progressive disclosure |
+| [Vibecoding 101](docs/vibecoding-101-guide.md) | Beginner's guide to AI-powered development |
 
 ---
 
-Apache 2.0 — see [LICENSE](LICENSE).
+Apache-2.0 © 2026 hamr0 — see [LICENSE](LICENSE).
