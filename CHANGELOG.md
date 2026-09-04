@@ -8,7 +8,53 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [2.0.0] — 2026-09-04
+
+Mirrored from liteagents 2.24.1 and 3.0.0 — two releases, since 1.21.0 tracked 2.24.0.
+All four kits verified byte-identical to their liteagents originals after the sync
+(`diff -rq` across every kit, zero differences).
+
+### Breaking
+- **The `context-builder` subagent is removed — the kits go 11 -> 10 agents.**
+  `docs-builder` supersedes its Tier 2/3 work (creating and splitting `docs/*.md`;
+  `docs/index.md` via `index-flat` is the sole index). Tier 1 — authoring the tool
+  config — was the only unique part, and its one load-bearing invariant, that the
+  config must `@`-include the project `MEMORY.md` and nothing else, is now a
+  mechanical gate in `stub-check.cjs` that runs every `/remember`. A prose rule
+  inside a subagent was always the weaker enforcement.
+  **Migration:** use `/docs-builder` for the doc-authoring work, and the tool's own
+  init command for a cold-start config. The orchestrator's Brownfield workflow now
+  starts at `system-architect`.
+
+### Security
+- **`sync-rules.cjs` and `stub-check.cjs` no longer write through a symlink out of
+  the repo they were invoked on.** Found by `/branch-review` and reproduced before
+  being fixed. `/remember` runs across a fleet of sibling checkouts, so a relative
+  link only has to reach a neighbour. Three routes were closed: a dangling link at
+  the write target (followed by `writeFileSync` as if the file were merely absent),
+  a symlinked parent directory (where the target itself is not a link, so checking
+  only the leaf misses it), and a live link out in `stub-check`, which rewrote the
+  followed file in place. `escapesRepo()` resolves the deepest existing ancestor
+  with `realpath`, confirms the write lands inside the repo, then `lstat`s the leaf.
+  The refusal is loud, never silent. Two negative controls — a repo merely reached
+  through a symlinked path — still sync and repair normally.
+
+### Added
+- **AGENT_RULES freshness.** Three vanilla-Node scripts bundled with `/remember`
+  and mirrored to all four kits: `version-check.cjs` nudges when the installed
+  package is behind, `sync-rules.cjs` byte-compares and refreshes the repo's
+  `AGENT_RULES.md` keeping a single `.bak`, and `stub-check.cjs` repairs the config
+  stub's shape inside the marker pairs only. Before this, the rules were
+  bootstrapped once and never refreshed, so a measured 35 local repos had drifted
+  many releases behind.
+- **`/refactor` must hand back, not chain.** Saying "commit, then run
+  `/branch-review`" is a sentence to say, not a sequence to run; an answer of
+  "commit" authorizes the commit and nothing after it.
+
 ### Fixed
+- README: the agent count read 11 after the removal, `branch-review-README.md` was
+  present in `docs/` but linked from nowhere, and the live-canvas README was
+  unreachable from the front door.
 - **Fedora setup guide: the documented CPU turbo fix did not persist**
   (`tools-fedora/setup/FEDORA_SETUP.md`). The section added in 1.16.0 prescribed
   `sudo tuned-adm profile balanced`, which is silently reverted whenever `tuned-ppd` is
