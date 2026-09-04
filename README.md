@@ -13,7 +13,7 @@ lazygit, Kitty/Ghostty).
 
 ## What's inside
 
-- **Subagent kits** (`ai/subagentic/`) — 11 role-based agents plus skills and
+- **Subagent kits** (`ai/subagentic/`) — 10 role-based agents plus skills and
   slash-commands, ready to drop into each tool. See the
   [Subagent Manual](ai/subagentic/subagentic-manual.md).
 - **Linux dev-tool setup** (`tools-debian/`, `tools-fedora/`) — per-distro
@@ -69,6 +69,8 @@ docs/           # guides
 - [Vibecoding 101](docs/vibecoding-101-guide.md) — beginner's guide to AI-powered development
 - [Hot-memory pipeline](docs/remember-README.md) — how `/stash` and `/remember` work (friction runs inside `/remember`)
 - [docs-builder](docs/docs-builder-README.md) — how `/docs-builder` reorganises a docs corpus, splits oversized docs, searches them, and tracks drift
+- [branch-review](docs/branch-review-README.md) — the pre-merge gate: three stages, what blocks a merge, and the `/branch-review` → fix ledger → `/refactor` loop
+- [live-canvas](ai/subagentic/claude/skills/live-canvas/README.md) — the two modes, the click-to-annotate channel, and the Claude Code plugin setup
 - [Agent Guidelines](ai/customize/config/AGENT_RULES.md) — AI collaboration guardrails
 
 ---
