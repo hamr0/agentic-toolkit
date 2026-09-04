@@ -71,6 +71,19 @@ All four kits verified byte-identical to their liteagents originals after the sy
   the same profile instead of degrading. Notes that `powerprofilesctl` may be absent even
   when the daemon is running.
 
+### Documentation
+- **README rewritten.** It had grown into an unreadable blob; it now leads with what the
+  toolkit actually is (scaffolding for early LLMs that became thin, domain-triggered
+  specialists — constraints on *what*, not scripts for *how*), then a single catalog
+  table of all 10 agents and all 18 commands/skills, one line each.
+  A new "the ones that carry the load" section covers the five that get daily use:
+  `AGENT_RULES.md` as the standing architect and PRD-as-portal, the `/stash` →
+  `/remember` loop, `/docs-builder`, `/live-canvas`, and the `/branch-review` →
+  `/release` → `/refactor` chain. The toolkit's own parts — Linux dev-environment
+  setup, `ai/customize/`, `ai/marketplace/`, the layout tree — moved into their own
+  "the rest of the box" section so they stay visible. The doc table is now keyed by
+  command name. Header matches liteagents' banner style. Every link verified on disk.
+
 ## [1.21.0] — 2026-09-03
 
 Mirrored from liteagents 2.23.0 and 2.24.0 — two releases, since 1.20.1 tracked 2.22.1.
