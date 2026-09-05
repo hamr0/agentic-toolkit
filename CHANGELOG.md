@@ -8,7 +8,7 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
-## [2.1.0] — 2026-09-05
+## [2.5.0] — 2026-09-05
 
 Mirrored from liteagents 3.5.0. All four kits verified byte-identical to their
 liteagents originals (`diff -rq` per kit, zero differences, 13 capabilities each).
