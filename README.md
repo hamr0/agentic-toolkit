@@ -7,7 +7,7 @@
 /_/ \_\___/|___||_|\_||___||_|\___|    |_| \___/ \___/ |____|_|\_\|_| |_|
 ```
 
-**10 specialized agents · 18 commands & skills · Claude · Opencode · Ampcode · Droid**
+**10 specialized agents · 13 commands & skills · Claude · Opencode · Ampcode · Droid**
 **— plus a full Linux terminal dev environment**
 
 <p align="center">
@@ -71,17 +71,13 @@ cp -rv ai/subagentic/ampcode/*  ~/.config/amp/       # Amp
 | `/security` | Standalone vulnerability audit (also stage 2 of `/branch-review`) |
 | `/ship` | Mechanical pre-deploy gate — tests, build, tree state, pass/fail only |
 | `/test-generate` | Generate a test suite and verify each test exercises real code |
-| `/optimize` | Performance analysis on a named target |
 | `/brainstorming` | Turn a rough idea into a formed design by questioning |
 | `/debug-method` | Four-phase debugging — root cause before any fix |
 | `/trace-back` | Walk a deep error backward to its original trigger |
 | `/live-canvas` | UI variations with click-to-annotate feedback in the browser |
 | `/skill-creator` | Build a new skill |
-| `/tdd-flow` ⚡ | Test first, watch it fail, then minimal code |
-| `/test-traps` ⚡ | Stop mocking anti-patterns and test-only production code |
-| `/verify-done` ⚡ | No "it works" claim without a command run behind it |
 
-<sub>⚡ = auto-triggering (Claude Code). Claude Code gets the full subagent system; Opencode, Ampcode and Droid get the same 18 commands plus agent reference docs.</sub>
+<sub>Claude Code and Amp ship all 13 as skills; Opencode and Droid expose all 13 as commands. All four also ship agent reference docs.</sub>
 
 ---
 
@@ -214,7 +210,7 @@ docs/           # guides
 | [`/remember`](docs/remember-README.md) | The `/stash` → `/remember` pipeline, friction sensor, antigen ledger |
 | [`/docs-builder`](docs/docs-builder-README.md) | Reorg and cleanup modes, measured cost, the drift ledger |
 | [`/branch-review`](docs/branch-review-README.md) | The three stages, what blocks, the fix-ledger loop |
-| [`/live-canvas`](ai/subagentic/claude/skills/live-canvas/README.md) | Both modes and the Claude Code channel plugin setup |
+| [`/live-canvas`](docs/live-canvas-README.md) | Both modes and the Claude Code channel plugin setup |
 | [`AGENT_RULES.md`](ai/customize/config/AGENT_RULES.md) | The rules doc itself |
 | [All agents & commands](ai/subagentic/subagentic-manual.md) | Full reference, token loads, progressive disclosure |
 | [Vibecoding 101](docs/vibecoding-101-guide.md) | Beginner's guide to AI-powered development |

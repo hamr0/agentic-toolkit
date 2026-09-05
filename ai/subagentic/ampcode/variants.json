@@ -1,8 +1,8 @@
 {
   "pro": {
     "name": "Pro",
-    "description": "Complete installation with all agents and commands",
+    "description": "Complete installation with all agents and skills",
     "agents": "*",
-    "commands": "*"
+    "skills": "*"
   }
 }
