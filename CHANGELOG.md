@@ -8,6 +8,18 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [2.6.0] — 2026-09-05
+
+Mirrored from liteagents 3.6.0. All four kits verified byte-identical to
+`packages/<kit>` at liteagents v3.6.0; no other drift and no orphans.
+
+### Fixed
+- **`/branch-review` now validates a recorded `last-review.md` before trusting it.**
+  The record's `sha:` must pass `git rev-parse --verify` and be an ancestor of
+  `HEAD`, and its `branch:` must match the current branch. A record left behind by
+  a merged, renamed or rebased branch is treated as no record and falls through to
+  a full review, instead of resolving a commit range that never existed.
+
 ## [2.5.0] — 2026-09-05
 
 Mirrored from liteagents 3.5.0. All four kits verified byte-identical to their
