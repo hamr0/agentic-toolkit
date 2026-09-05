@@ -58,7 +58,7 @@ cp -rv ai/subagentic/ampcode/*  ~/.config/amp/       # Amp
 | `system-architect` | System design, tech selection, API design, scale |
 | `ui-designer` | UI/UX, wireframes, prototypes, design systems |
 
-**Commands & skills** — `/name`. Three of them fire on their own when the situation matches.
+**Commands & skills** — `/name`. Four of them can fire on their own when the situation matches: `/brainstorming`, `/root-cause`, `/live-canvas`, `/skill-creator`.
 
 | Command | What it's for |
 |---|---|
@@ -67,13 +67,12 @@ cp -rv ai/subagentic/ampcode/*  ~/.config/amp/       # Amp
 | `/docs-builder` | Reorg, index, and split a docs corpus so search actually finds things |
 | `/branch-review` | Full pre-merge review — blockers reported, nits to the fix ledger |
 | `/release` | Docs sweep, version bump, local commit, then hand back the merge sequence |
-| `/refactor` | Clear the fix ledger; with args, refactor a named area |
+| `/refactor` | Clear the fix ledger; with args, refactor and optimize a named area |
 | `/security` | Standalone vulnerability audit (also stage 2 of `/branch-review`) |
 | `/ship` | Mechanical pre-deploy gate — tests, build, tree state, pass/fail only |
 | `/test-generate` | Generate a test suite and verify each test exercises real code |
 | `/brainstorming` | Turn a rough idea into a formed design by questioning |
-| `/debug-method` | Four-phase debugging — root cause before any fix |
-| `/trace-back` | Walk a deep error backward to its original trigger |
+| `/root-cause` | Find the cause before changing code — evidence, backward trace, one hypothesis, fix at the source |
 | `/live-canvas` | UI variations with click-to-annotate feedback in the browser |
 | `/skill-creator` | Build a new skill |
 

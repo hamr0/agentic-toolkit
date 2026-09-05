@@ -8,6 +8,30 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [2.1.0] — 2026-09-05
+
+Mirrored from liteagents 3.5.0. All four kits verified byte-identical to their
+liteagents originals (`diff -rq` per kit, zero differences, 13 capabilities each).
+
+### Breaking
+- **Capabilities cut 18 -> 13.** `tdd-flow`, `test-traps` and `verify-done` are
+  removed; `/optimize` is folded into `/refactor`; `trace-back` and `debug-method`
+  merge into `/root-cause`. Orphaned files from the old set are deleted.
+- **Claude Code and Amp ship every capability as `skills/<name>/SKILL.md`.**
+  Claude Code merged custom commands into skills and Amp removed custom commands.
+  Droid and OpenCode keep flat commands.
+
+### Fixed
+- Amp install delivered 10 agents and no capabilities: `ampcode/variants.json`
+  declared only `agents` after the move to `skills/`.
+- README catalog still listed `/debug-method` and `/trace-back`; now `/root-cause`.
+- `package.json` description still said 11 agents / 18 commands.
+
+### Changed
+- `subagentic-manual.md` rewritten for the 13-skill layout; install paths and
+  deeper-doc links now point at this repo (`ai/subagentic/<kit>/`, `docs/`).
+- live-canvas and live-canvas-channel READMEs moved into `docs/`.
+
 ## [2.0.0] — 2026-09-04
 
 Mirrored from liteagents 2.24.1 and 3.0.0 — two releases, since 1.21.0 tracked 2.24.0.

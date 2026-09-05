@@ -2,12 +2,12 @@
 
 A quick reference for the agent kits: what ships, what each thing does, and where it lands.
 
-Liteagents started as scaffolding for early LLMs that needed to be told everything. It isn't
+The agent kits here started as scaffolding for early LLMs that needed to be told everything. It isn't
 that anymore. Models got smarter, so the toolkit got thinner: specialists you call by name or
 that trigger themselves on domain, wide lanes instead of tight rails, constraints on *what*
 rather than scripts for *how*.
 
-It is actively challenged, pruned and rewritten — things get renamed, added, and deleted as
+They are actively challenged, pruned and rewritten — things get renamed, added, and deleted as
 models improve. That churn is the point.
 
 ---
@@ -15,17 +15,17 @@ models improve. That churn is the point.
 ## Quick Start
 
 ```bash
-npx liteagents          # interactive installer, auto-updates
+npx liteagents          # interactive installer, auto-updates (upstream package)
 ```
 
 Or copy a kit manually:
 
 | Platform | Installation | What lands there |
 |----------|--------------|------------------|
-| **Claude Code** | `cp -r packages/claude/* ~/.claude/` | 10 subagents + 13 skills + live-canvas-channel plugin |
-| **Droid** | `cp -r packages/droid/* ~/.factory/` | 10 subagents + 13 commands |
-| **Ampcode** | `cp -r packages/ampcode/* ~/.config/amp/` | 10 subagents + 13 skills |
-| **OpenCode** | `cp -r packages/opencode/* ~/.config/opencode/` | 10 subagents + 13 commands |
+| **Claude Code** | `cp -r ai/subagentic/claude/* ~/.claude/` | 10 subagents + 13 skills + live-canvas-channel plugin |
+| **Droid** | `cp -r ai/subagentic/droid/* ~/.factory/` | 10 subagents + 13 commands |
+| **Ampcode** | `cp -r ai/subagentic/ampcode/* ~/.config/amp/` | 10 subagents + 13 skills |
+| **OpenCode** | `cp -r ai/subagentic/opencode/* ~/.config/opencode/` | 10 subagents + 13 commands |
 
 All four ship the same 10 subagents and the same 13 capabilities. Claude Code and
 Amp ship all 13 as skills; Droid and OpenCode expose all 13 as commands.
@@ -206,12 +206,12 @@ These live in the repo, not in the installed kit:
 | Doc | What's in it |
 |---|---|
 | [Installer guide](https://github.com/hamr0/liteagents/blob/main/docs/product/INSTALLER_GUIDE.md) | Install, custom paths, uninstall, troubleshooting, FAQ — and the order of operations for changing a command, skill or subagent |
-| [`/remember`](https://github.com/hamr0/liteagents/blob/main/docs/product/remember-README.md) | The `/stash` → `/remember` pipeline, friction sensor, antigen ledger |
-| [`/docs-builder`](https://github.com/hamr0/liteagents/blob/main/docs/product/docs-builder-README.md) | Reorg and cleanup modes, measured cost, the drift ledger |
-| [`/branch-review`](https://github.com/hamr0/liteagents/blob/main/docs/product/branch-review-README.md) | The three stages, what blocks, the fix-ledger loop |
-| [`/live-canvas`](https://github.com/hamr0/liteagents/blob/main/docs/product/live-canvas-README.md) | Both modes, the click-to-annotate overlay, and setup |
-| [live-canvas-channel](https://github.com/hamr0/liteagents/blob/main/docs/product/live-canvas-channel-README.md) | The Claude Code MCP channel plugin — install, protocol, debugging |
+| [`/remember`](../../docs/remember-README.md) | The `/stash` → `/remember` pipeline, friction sensor, antigen ledger |
+| [`/docs-builder`](../../docs/docs-builder-README.md) | Reorg and cleanup modes, measured cost, the drift ledger |
+| [`/branch-review`](../../docs/branch-review-README.md) | The three stages, what blocks, the fix-ledger loop |
+| [`/live-canvas`](../../docs/live-canvas-README.md) | Both modes, the click-to-annotate overlay, and setup |
+| [live-canvas-channel](../../docs/live-canvas-channel-README.md) | The Claude Code MCP channel plugin — install, protocol, debugging |
 
 ---
 
-**Repository**: https://github.com/hamr0/liteagents · **Issues**: https://github.com/hamr0/liteagents/issues · Apache-2.0
+**Repository**: https://github.com/hamr0/agentic-toolkit · **Upstream**: https://github.com/hamr0/liteagents · Apache-2.0
