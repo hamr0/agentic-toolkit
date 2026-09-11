@@ -8,6 +8,45 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [2.7.0] — 2026-09-11
+
+Mirrored from liteagents 3.7.0. All four kits verified byte-identical to
+`packages/<kit>` at liteagents v3.7.0 (`diff -rq` per kit, zero tracked differences).
+
+### Added
+- **`docs-builder` gains a fourth bucket, `wiki/`**, for generic knowledge
+  (conventions, how-tos, standards). The full layout is now `product/`, `wiki/`,
+  `logs/`, `archive/`.
+- **`docs-builder` sorts a repo with no `docs/` yet**, scanning its loose `.md`
+  files. Protected entry-point files (`README.md`, `CLAUDE.md`, `CHANGELOG.md`,
+  ...) never move, now matched case-insensitively.
+- **`reorg <dir>` / `discover <dir>`** re-check a single bucket.
+- **`docs-builder` classifies from headings too**, not just filenames.
+- **`logs/` nests one level**, grouped by first folder under `docs/`; the index
+  groups its Logs section the same way.
+- **`docs-builder` asks before committing** and names exactly the files its run
+  touched. It refuses to commit on `main` / `master`.
+
+### Changed
+- **`/branch-review` and `/security`: effort level no longer cuts which checks run**,
+  only how many findings are reported. Fail-first runs once per changed test file.
+  The secrets scan always covers all history.
+- **`/release`'s docs sweep is required and can't be skipped or sampled.** Three
+  passes with one evidence row per doc; a "no change" with no evidence fails.
+- **`docs-builder`'s default scan** is root-level `.md` plus everything under
+  `docs/`, not the whole repo. `product/`, `wiki/` and `logs/` are re-checked
+  every run; only `archive/` stays frozen.
+
+### Fixed
+- `docs-builder`'s commit recipe lost non-ASCII renames, swept up the operator's
+  own uncommitted edits, and broke under `REPO=<subdir>`.
+- `docs-builder`'s link rewriter could open non-Markdown files outside `docs/`;
+  it now touches `.md` only.
+
+### Security
+- `hono` bumped 4.13.0 → 4.13.7 in the live-canvas-channel plugin (Dependabot, #30).
+  Fixes an XSS in `hono/jsx` boundary components, among others.
+
 ## [2.6.0] — 2026-09-05
 
 Mirrored from liteagents 3.6.0. All four kits verified byte-identical to
