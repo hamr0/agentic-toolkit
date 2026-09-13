@@ -8,6 +8,33 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [2.8.0] — 2026-09-13
+
+Mirrored from liteagents 3.8.0. All four kits verified byte-identical to
+`packages/<kit>` at liteagents v3.8.0 (`diff -rq` per kit, zero tracked differences).
+
+### Added
+- **`AGENT_RULES.md` gains a rule to prove a test can fail**: revert the fix, watch
+  it go red, restore, rather than trust a test that "reads right."
+- **`AGENT_RULES.md` gains a rule that model output is untrusted input**:
+  schema-validate it and key decisions on typed fields, never regex the model's
+  prose.
+- **`AGENT_RULES.md` gains a rule that a warning nobody has to act on is not a
+  check**: either it halts/reds the run, or it is counted and surfaced where a
+  human reads it, including recording the stop/finish reason of every external or
+  model call, since a cut-off answer is never the same as no answer.
+- **`AGENT_RULES.md` gains a rule to meter the whole unit of work**: cost sums
+  every call; one unpriced call makes the total unknown, not zero.
+- **`AGENT_RULES.md` gains a rule to guard lookups keyed by an external string**
+  against inherited map entries answering for a key the map never had.
+
+### Changed
+- **`AGENT_RULES.md` redundancy pass** (all four kits): secrets, vetted
+  libraries, and the review chain are now each stated once with pointers
+  elsewhere instead of repeated inline. The security section's "Also hold the
+  line on" paragraph is now one bullet per rule, and a duplicated regression-test
+  rule was trimmed since another rule already covers it.
+
 ## [2.7.0] — 2026-09-11
 
 Mirrored from liteagents 3.7.0. All four kits verified byte-identical to
