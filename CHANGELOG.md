@@ -8,6 +8,28 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [2.9.0] — 2026-09-15
+
+Mirrored from liteagents 3.9.0. All four kits verified byte-identical to
+`packages/<kit>` at liteagents v3.9.0 (`diff -rq` per kit, zero tracked differences).
+`subagentic-manual.md` carries the same text changes, keeping this repo's own links.
+
+### Changed
+- **`/branch-review` gains a Stage 4 docs sweep**, run every time: checks the change
+  against the guide/context doc, PRD, README and findings, and commits doc-only files;
+  its record gains `docs-commit:` and `docs:` lines. **`/release` now only writes the
+  CHANGELOG** with the version, and its stale-review check only lets through files on
+  the record's `docs:` line.
+- **`/release` reuses an existing `## [Unreleased]` CHANGELOG section**: checks it
+  against the commits, adds anything missing, and retitles it to the version.
+- **`/ship`'s "in sync with `origin`" check** says a never-pushed branch is normal
+  before a release.
+- **`/branch-review` allows `Edit`, `Write`, `git add` and `git commit`** (Claude and
+  Amp), so Stage 4's docs commit runs without permission prompts.
+- **`docs-builder` spells out where `discover <dir>` puts logs from outside `docs/`**:
+  the first segment of the file's own path is the group (`discover src` puts
+  `src/x.md` and `src/a/b.md` both in `docs/logs/src/`). Behaviour unchanged.
+
 ## [2.8.0] — 2026-09-13
 
 Mirrored from liteagents 3.8.0. All four kits verified byte-identical to
