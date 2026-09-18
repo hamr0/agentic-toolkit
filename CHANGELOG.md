@@ -8,6 +8,47 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [2.10.0] — 2026-09-18
+
+Mirrored from liteagents 3.10.0. All four kits verified byte-identical to
+`packages/<kit>` at liteagents v3.10.0 (`diff -rq` per kit, zero tracked differences).
+liteagents 3.9.1 is skipped deliberately: it changed no file under `packages/`
+(verified with `git diff --name-only v3.9.0..v3.9.1 -- packages/`, empty), so the
+kits lose nothing. `subagentic-manual.md` is unchanged upstream this release and
+keeps this repo's own branding, install paths and links.
+
+### Changed
+- **The spec interview in `AGENT_RULES.md` is six checkable rules** instead of "ask
+  what you need to know — no more", which in practice produced one or two questions
+  and then a run at implementation. A round now asks only the *frontier* (decisions
+  whose prerequisites are settled), batched, with the agent's own recommended answer
+  under each question; facts the agent could look up are never asked. Depth is capped
+  by resolution rather than a question count — module 0 pinned to the decision, later
+  modules sketched only far enough to know they don't change it — so a portal-style
+  PRD is not grilled to exhaustion. Scope ("what is this *not* doing?") is asked across
+  the whole build, and one round is not an interview.
+- **Two new Build Rules close the software-entropy gap.** *Read before you write; reuse
+  before you add* requires searching for the existing function, class or name before
+  writing a new one, reporting what was reused, and justifying any near-duplicate —
+  one concept, one name, repo-wide. *Don't patch a patch* makes a third fix on the same
+  spot a redesign proposal rather than a fourth patch, and requires a new layer to hide
+  more complexity than its interface adds. Three Red Flags and the CLAUDE.md stub match.
+- **`/refactor` aims at interface depth instead of smaller pieces.** The goal *"smaller
+  functions (single responsibility)"* was a shallow-module machine — it read as "more
+  pieces is better" and fought `AGENT_RULES`' own "if you split one file into N similar
+  files, stop." It is replaced by *shrink the interface, not the pieces* and *apply the
+  deletion test before you create anything* (if deleting the proposed function, class or
+  wrapper makes complexity vanish rather than reappear across its callers, it is a
+  pass-through — don't create it). Both defer to the existing public-API gate, and both
+  are a filter on a bullet's own fix in ledger mode, never a licence to hunt. A new
+  *Where to look* section scopes broad targets by churn.
+
+### Fixed
+- **`/refactor`'s `argument-hint` advertises its named-area argument.** The new *Where to
+  look* section added a third argument shape that the hint never mentioned. Fixed in the
+  three kits whose frontmatter carries the key; opencode has no `argument-hint` key and
+  is correctly left alone.
+
 ## [2.9.0] — 2026-09-15
 
 Mirrored from liteagents 3.9.0. All four kits verified byte-identical to
