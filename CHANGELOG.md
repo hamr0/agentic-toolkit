@@ -8,6 +8,33 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [2.11.0] — 2026-09-20
+
+Mirrored from liteagents 3.11.0. All four kits verified byte-identical to
+`packages/<kit>` at liteagents v3.11.0 (content diff, zero tracked
+differences outside this repo's own branding/path adaptations).
+
+### Fixed
+- **`/stash`'s consolidation-nudge backlog count was silently wrong.** It
+  compared `files in .claude/stash/*.md` against `entries in
+  .claude/remember/.processed`, but `.processed` is a dotfile that a `*` glob
+  skips, and a cwd-relative path doesn't resolve from a background subagent
+  — so the processed count silently read as 0 and the nudge fired the raw
+  total on every stash (measured on a real repo: 69 stashes, 67 consolidated,
+  true backlog 2, reported 69). Now resolves an absolute `$ROOT`, counts with
+  two literal `grep -c ''` / `wc -l` commands rather than a glob-and-diff, and
+  reports **UNKNOWN** (never 0) if `$ROOT` can't be resolved. The nudge line
+  now carries the raw total/consolidated numbers alongside the backlog count.
+- **`/release` Phase 2's CHANGELOG anchor could rewrite release history.**
+  The instruction said to retitle an existing `## [Unreleased]` section but
+  never said how to find it; a bare string match can hit twice when a shipped
+  release note quotes the heading in its own prose, so a global
+  find-and-replace could silently rewrite that old entry instead of the
+  draft. Now anchors on the literal heading plus its surrounding newlines,
+  asserts exactly one match before writing, stops on zero or more than one,
+  and verifies afterward that other occurrences and prior headings/separators
+  are unchanged.
+
 ## [2.10.0] — 2026-09-18
 
 Mirrored from liteagents 3.10.0. All four kits verified byte-identical to
