@@ -8,6 +8,27 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [2.12.1] — 2026-09-22
+
+Mirrored from liteagents 3.12.1. The 4 changed files (ampcode/claude
+`skills/stash/SKILL.md`, droid `commands/stash.md`, opencode
+`command/stash.md`) verified byte-identical to `packages/<kit>` at
+liteagents v3.12.1.
+
+### Fixed
+- **`/stash`'s consolidation nudge no longer double-counts an empty
+  `.processed` manifest.** `grep -c ''` on an empty file already prints `0`
+  but exits 1, so the `|| echo 0` fallback also fired, printing `0` twice;
+  the count now uses an if/else that prints a single number.
+- **`/stash`'s total-stash count no longer breaks under zsh or on a
+  symlinked stash directory.** An unmatched glob made zsh print "no matches
+  found" instead of counting zero; switching to `find` fixed that, but the
+  find pattern's missing trailing slash then counted a symlinked stash dir
+  as 0 files. Both are fixed, and hidden `.md` files are still skipped as
+  before.
+- **`/stash` now tells you how to resolve `$ROOT`** (`git rev-parse
+  --show-toplevel`), instead of leaving it undefined in the skill text.
+
 ## [2.12.0] — 2026-09-21
 
 Mirrored from liteagents 3.12.0. All four kits verified byte-identical to
