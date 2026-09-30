@@ -8,6 +8,56 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [3.0.0] — 2026-09-30
+
+Mirrored from liteagents 4.0.0. All four kits verified byte-identical to
+`packages/<kit>` at liteagents v4.0.0 (`diff -rq`, zero differences).
+Major version because a capability was removed and one renamed.
+
+### Breaking
+- **`/ship` is removed; `/release` now runs its own short mechanical checks**
+  (lint/format, migrations, in sync with `origin`). Tests and build are run
+  only when the review record's `tests:` line does not cover them. Capability
+  count 14 -> 13 (9 deliberate actions + 4 advisory). The orphaned `ship`
+  skill/command is deleted from every kit.
+- **`/debrief` is renamed `/self-review`** (`skills/self-review/` in Claude and
+  Ampcode, `commands/self-review.md` in Droid, `command/self-review.md` in
+  OpenCode), and its bookmark line in `.claude/remember/last-review.md` is
+  renamed `self-review-sha:`. An old `debrief-sha:` bookmark is honoured once,
+  then rewritten under the new name. `docs/debrief-README.md` is now
+  `docs/self-review-README.md`.
+
+### Changed
+- **`/branch-review` stops up front when the branch is behind `origin/main`**,
+  so a sync never invalidates a finished review.
+- **`/release` treats a merge or rebase of `origin/main` after the review as
+  stale** and asks for a re-review.
+- **The gates each do one job.** `/self-review` (before commit) owns real runs
+  and all code-structure checks (dead code, state ownership, reuse, naming,
+  performance); `/branch-review` (after commit) owns bugs, test quality,
+  security, verify and the docs sweep. `/self-review` caps its report at 5
+  failure-sentence items plus 5 Structure items.
+- **The review record gains a required `tests:` line**, which `/release` reads
+  instead of re-running the suite when the recorded `sha:` equals HEAD.
+- **`/refactor` with a whole-area argument lists candidates first** and stops;
+  only the ones you pick are edited.
+- **README, `subagentic-manual.md`, `docs/branch-review-README.md` and
+  `ai/customize/config/AGENT_RULES.md` brought current** (13 capabilities,
+  `/self-review`, no `/ship`, four review stages, refreshed rules doc).
+
+### Fixed
+- **`/branch-review` Stage 2 walks the installed security spec's own
+  checklist** instead of a shortened copy, and an N/A reason must be true of the
+  repo, not the diff.
+- **The record-directory hash check works when `.claude/remember` holds a
+  subdirectory**, in both `/branch-review` and `/refactor`.
+- **`/branch-review`'s fail-first count is honest**, and its orchestrator hands
+  the spawned worker the spec's path instead of a paraphrase.
+- **`/self-review` hands its worker the spec path**, and each item is one kind
+  counted in one cap only.
+- **Long test runs:** a timed-out run is not a pass; totals are cited with the
+  exit code.
+
 ## [2.12.1] — 2026-09-22
 
 Mirrored from liteagents 3.12.1. The 4 changed files (ampcode/claude

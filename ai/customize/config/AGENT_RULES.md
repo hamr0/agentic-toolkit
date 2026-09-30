@@ -17,7 +17,15 @@
 
 Every task runs through three layers. Do not skip ahead to code.
 
-1. **Spec — the interview must happen; its shape is yours.** Before touching anything, surface the *decision I'm actually making*, not the literal task I typed. Ask what you need to know — no more; how you ask is your call. Restate what you heard and get my explicit sign-off on the load-bearing decisions *before* you execute. A wrong assumption caught here costs a sentence; caught after building costs the build.
+1. **Spec — the interview must happen, and quality beats quantity.** Before touching anything, surface the *decision I'm actually making*, not the literal task I typed. Then interview in **rounds**:
+   - **Ask only the frontier** — the decisions whose prerequisites are already settled. A question whose answer depends on another question still open belongs to a later round, not this one.
+   - **One round = the whole frontier, batched.** Number each question and put your own recommended answer under it, so answering is a yes/no rather than an essay.
+   - **Facts are your job; decisions are mine.** Never ask me what you could read, grep, or run — go find it. A question that isn't a choice only I can make does not belong in a round.
+   - **Sharp near, loose far.** Question depth falls off with distance. Module 0 gets pinned down to the decision; later modules get sketched only as far as it takes to know they don't change module 0 — they get sharpened when their turn comes, and their own POC usually answers them better than I can today.
+   - **Scope is the exception — ask it wide.** "What is this *not* doing?" is worth asking about the whole build, not just module 0. Out of scope is the cheapest answer I can give you and the one that saves the most build.
+   - **Floor: one round is not an interview.** Never start building while a prerequisite of the go / no-go is still assumed. **Done** = the go / no-go and its 1–2 capabilities are settled and the scope boundary is drawn; everything still loose is an **Open question** in the PRD, never a silent assumption.
+
+   Restate what you heard and get my explicit sign-off on the load-bearing decisions *before* you execute. A wrong assumption caught here costs a sentence; caught after building costs the build.
 
    Write the outcome down as a **PRD**. A PRD is a portal, not a deliverable — where the conversation starts and the doc every POC refines. Minimum content, whatever the form:
    - **Problem & goal** — what we're solving and why now
@@ -27,7 +35,7 @@ Every task runs through three layers. Do not skip ahead to code.
    - **Open questions** — unknowns that don't block; never silently assumed
 
    Every POC result updates the PRD; one that flips the go/no-go or a module's assumption is a spec change, not a footnote.
-2. **Verify — define "good" up front, then prove it.** Write down what success looks like *before* changing code. Prove with measurement and tests, not assertion (see [*Prove, don't assert*](#validate-before-you-build)). When the work is done, propose `/branch-review` — a general review plus a full `/security` audit, which reports findings and never fixes them — and then `/release`, which runs `/ship` as the mechanical pre-deploy gate. You never merge or release on your own (see [Required Safeguards](#required-safeguards-always--ask--never)). External signal — a real test run, a real deploy, a gold-standard reference — beats a confident paragraph every time.
+2. **Verify — define "good" up front, then prove it.** Write down what success looks like *before* changing code. Prove with measurement and tests, not assertion (see [*Prove, don't assert*](#validate-before-you-build)). When the work is done, first propose `/self-review` — everything since the last self-review, committed or not, checked by a separate mid-tier worker that tries to break the claims with real runs; it only surfaces, never fixes, and is not a gate (checkable: a self-review report naming the commands it ran and their totals exists before `/branch-review` is proposed) — then `/branch-review` — a general review plus a full `/security` audit, which reports findings and never fixes them — and then `/release`, the mechanical pre-release gate. You never merge or release on your own (see [Required Safeguards](#required-safeguards-always--ask--never)). External signal — a real test run, a real deploy, a gold-standard reference — beats a confident paragraph every time.
 3. **Environment — the standing context.** This file primes every session. Critical-path protections (secrets, auth, schema, CI) are stated as **Always / Ask / Never** below and bind you as written. Where your tool offers a permission allow/ask/deny list, mirror them there so they are enforced and not merely requested.
 
 **Execution order — work the way a program runs, in this order, nothing skipped:**
@@ -60,8 +68,8 @@ Not courtesies. These bind you as written, whether or not your tool enforces the
 
 - **Always** identify affected files before making changes, and explain what will change and why
 - **Ask first** — stop and get explicit sign-off — before modifying authentication systems, database schema or migrations, CI workflows, or `.claude/settings.json`
-- **Never** write secrets into the tree (`.env`/`*.env`, keys, credentials). They load from the environment at runtime; only a value-less `.env.example` is committed
-- **Never** commit to `main`. Commit to a new branch (name doesn't matter), then propose `/branch-review` followed by `/release`; merging and releasing are my call, made by name — "approve", "good", or "go" on a draft is not that call
+- **Never** put secrets in the tree — see [Security & Robustness Invariants §1](#security--robustness-invariants)
+- **Never** commit to `main`. Commit to a new branch (name doesn't matter), then propose `/self-review`, `/branch-review`, and `/release`, in that order; merging and releasing are my call, made by name — "approve", "good", or "go" on a draft is not that call
 
 ---
 
@@ -110,15 +118,21 @@ Before adding any external dependency, all of these must be true:
 - **One writer per piece of state.** One function assigns each field; everything else calls it. Grep who writes it before you write it. Ownership says *where*, not *when* — if a write can land from a callback, thread, or lifecycle, the reader must tell stale from fresh
 - **Split the decision from the machinery.** A branch whose outcome matters, tangled with a framework, IO, or UI object, moves into a pure function; the framework class applies the result. Extract to pin a branch, not to raise coverage — a one-line delegation in its own file buys a test that cannot fail
 - **Claims in comments must be checkable.** "The only place that writes X" is a claim — run the grep first, and expect the next reader to re-run it. A name search proves an edge exists, never that one doesn't
+- **Read before you write; reuse before you add.** Before adding a function, class, file, or dependency, search for the one that already does it — and say in your report what you found and reused. If you add a near-duplicate anyway, name the existing one and say why it couldn't be extended. Reuse its **name** too: one thing, one name, repo-wide — a second name for the same concept is a duplicate nobody can grep for
+- **Don't patch a patch.** A third fix landing on the same spot means the design is wrong, not the line — stop, say so, and propose the redesign instead of adding a fourth patch. The same test applies to a layer: a new file, wrapper, or abstraction must hide more complexity than its interface adds; if reading it costs as much as reading what it hides, inline it
 - **Containerize only when necessary.** Start with a virtualenv or bare metal. Docker adds value for deployment parity and isolation — not for running a script
 - **Responsive web UI is mandatory in dev projects.** Any web UI must be usable on mobile by default — fluid layouts, viewport meta tag, breakpoints for narrow screens, no horizontal scroll. Test in DevTools device emulation before declaring a UI task done. POCs are exempt (validate the idea first), but the moment a POC graduates to a real project this becomes a hard requirement
 - **Surgical changes only.** Touch what the task requires; nothing else. Don't "improve" adjacent code, comments, or formatting. Match existing style even if you'd do it differently. Only clean up orphans your own change created. Dead code, nits, bugs you pass on the way: if it's inside or affects the code you're already changing, and the fix changes no behavior, fix it and say so. Otherwise report it — say what it costs to leave it. "It would be nicer" is not a cost. Every changed line traces to the request or to a fix you named
+- **Meter the whole unit of work.** Usage and cost sum every call a unit of work makes; the last call's number is never the total, and one unpriced call makes the total unknown, not zero
 
 ### Red Flags — Stop and Flag These
 - Over-engineering simple problems
 - Adding external dependencies for trivial operations
 - Frameworks where a library or stdlib would suffice
 - Vendor-specific implementations when open alternatives exist
+- Writing a new function, class, or file without first searching for the one that already does it, or coining a second name for something the repo already names
+- Stacking a third patch on the same spot instead of stopping and proposing a redesign
+- Starting to build after one round of questions, or asking me something you could have looked up yourself
 - Skipping POC validation for unproven ideas
 - POC-ing only the easy part while hand-waving the risky mechanism, or claiming a cost ("cheap"/"fast"/"constant") you never measured
 - Authoring a fixture/corpus that *guarantees* the result (a test that can't return the negative), or trusting a degenerate-looking number without auditing the harness for confounds — use real uncrafted data; the test must be able to fail
@@ -144,7 +158,7 @@ particular toolchain spells it.
 
 - **After the design stabilizes, not during exploration.** Do not test a prototype — you will write tests for code you delete tomorrow. First make it work (POC), then make it right (tests), then make it fast
 - **Tests first when you already know the contract.** Pure functions, algorithms, parsers, validators, data transformations — write the test, watch it fail, then implement. When you are still discovering the interface, that same discipline produces churn and false confidence
-- **Write tests for bugs.** Every fix ships a regression test that fails before the fix and passes after — the highest-value test there is
+- **Write tests for bugs.** Every fix ships a regression test — the highest-value test there is
 - **Write tests before refactoring.** Characterization tests lock in current behavior first, then change the code
 - **Write tests when the code has users.** Called by other modules or exposed externally means it needs tests; a helper serving one caller does not need its own file
 - **Do not test glue code.** Something that only wires A to B to C is covered at the integration level
@@ -152,7 +166,7 @@ particular toolchain spells it.
 ### What makes a good test
 
 - **Tests real behavior.** Call the public interface, assert on observable output. Never reach into internals
-- **Fails for the right reason.** It breaks when the feature breaks, not when the implementation moves
+- **Fails for the right reason — prove it.** It breaks when the feature breaks, not when the implementation moves. Revert the fix (or switch the check off), run the test, watch it go red, then restore it: a test you have never seen fail is unverified, however right it reads
 - **Reads like a spec.** Someone new to the code should learn what the feature does by reading it
 - **Self-contained.** Sets up its own state, runs, cleans up. No ordering dependencies, and no reliance on project directories, user config, or ambient environment
 - **Deterministic.** Flaky tests erode trust. A dependency on timing, network, or global state is a defect in the test
@@ -186,15 +200,22 @@ Throwaway POCs are exempt while you validate logic (per **POC first** above) —
 1. **No secrets in the repo.** Keys, tokens, and credentials load from the environment / a secret store at runtime — never hardcoded, never logged. `.env` is gitignored; only a value-less `.env.example` is committed. Scan history before trusting a repo. One leaked key is a breached database or a runaway bill.
 2. **Scope every data access to its owner.** Each record read or written is constrained to the requesting principal — via DB-level rules (RLS / row policies) and/or an application-layer ownership check. Never trust a client-supplied id without a gate. If the storage layer offers row-level policies, enabling them is not optional, and "on but too broad" still fails.
 3. **Bound every reachable endpoint.** Rate-limit public routes AND authenticated mutation/write routes AND abuse-prone inbound paths (mail, webhooks). An unbounded route is a free DoS and bill amplifier — a script in a loop should not be able to take the service down.
-4. **Handle the unhappy path.** Every IO / network / DB / third-party call has an explicit failure path. Nothing fails silently. Internal detail (stack traces, queries, secrets) never reaches the client. Async/background work carries its own catch.
+4. **Handle the unhappy path.** Every IO / network / DB / third-party call has an explicit failure path. Nothing fails silently. Internal detail (stack traces, queries, secrets) never reaches the client. Async/background work carries its own catch. A warning nobody has to act on is not a check — either it halts / reds the run, or it is counted and surfaced where a human reads it. Record what you asked a dependency for and what you got back. Read and record the stop/finish reason of every external or model call — a cut-off answer (length/max_tokens) is never the same as no answer.
 5. **Authorization is not authentication.** "Logged in" never implies "allowed". Every state-changing or privileged action checks ownership AND role/permission. If swapping an id in a request would expose or mutate someone else's data, it's a bug — return 403.
 6. **Data access scales.** No queries inside loops, no per-render repeated round-trips, indexes on every filtered/joined column. Code that's fine at 10 users and collapses at 1,000 is a latent outage.
 
-Also hold the line on: input validation at every trust boundary (untrusted uploads, inbound mail, webhooks, and spoofable headers like `X-Forwarded-For` — trust them only behind a vetted proxy); parameterized queries (never string-built SQL); vetted libraries for crypto / auth / sanitization (never roll your own); and least-privilege binding (loopback, not `0.0.0.0`, unless the port is deliberately public).
+Also hold the line on:
+
+- **Validate input at every trust boundary.** Untrusted uploads, inbound mail, webhooks, and spoofable headers like `X-Forwarded-For` — trust the latter only behind a vetted proxy.
+- **Model output is untrusted input too.** Validate it against a schema and key every decision on a typed field — never regex-parse the model's prose for a number, id, or verdict.
+- **Guard lookups keyed by an external string.** Look the key up only among the map's own entries, never inherited ones — an inherited member can otherwise answer for a key the map never had, so "not found → throw" is bypassed.
+- **Parameterize every query.** Never string-build SQL.
+- **Use vetted libraries for security-critical code** — see [External Dependency Checklist](#external-dependency-checklist).
+- **Bind least-privilege.** Loopback, not `0.0.0.0`, unless the port is deliberately public.
 
 **Verify at two moments, not one.**
 - **While building** — this list shapes the code as it's written.
-- **Before deploy/merge** — run **`/branch-review`**, whose second stage runs **`/security`** in full; `/release` then runs **`/ship`** as the mechanical pre-deploy gate. A Critical/High finding blocks the ship; lower-severity findings get logged and triaged, not silently shipped. Proactively remind the user to run them whenever a change touches auth, data access, endpoints, secrets, or untrusted input.
+- **Before deploy/merge** — see [Operating Flow §2](#operating-flow). A Critical/High finding blocks the ship; lower-severity findings get logged and triaged, not silently shipped. Proactively remind the user to run `/branch-review` whenever a change touches auth, data access, endpoints, secrets, or untrusted input.
 
 ---
 
@@ -248,7 +269,9 @@ Copy this to any project's CLAUDE.md. These are mandatory rules, not suggestions
 ```markdown
 ## Dev Rules
 
-**Spec first.** Interview to find the decision, not the task; write a PRD with problem/goal, go/no-go, out-of-scope, modules, open questions. POCs refine it.
+**Spec first — quality of questions over quantity.** Interview to find the decision, not the task. Ask in batched rounds, only questions whose prerequisites are settled, each with your recommended answer under it; find facts yourself and ask me only the choices that are mine. Pin module 0 down to the decision, sketch later modules only enough to know they don't change it, and ask what's out of scope for the whole build. One round is not an interview; never build on an assumed prerequisite. Write a PRD with problem/goal, go/no-go, out-of-scope, modules, open questions. POCs refine it.
+
+**Reuse before you add.** Search for the existing function, class, or name before writing a new one, and report what you reused; a near-duplicate needs a stated reason the original couldn't be extended. A third patch on the same spot means propose a redesign, not a fourth patch.
 
 **POC first, one module at a time.** Each module's POC targets its riskiest assumption (module 0 = go/no-go); the test must be able to fail; prove, don't assert — measure anything you call cheap/fast/constant. No fitting to pass. A module works on its own, then connects to what's built, before the next starts. Never ship the POC.
 

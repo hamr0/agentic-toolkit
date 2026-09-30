@@ -7,7 +7,7 @@
 /_/ \_\___/|___||_|\_||___||_|\___|    |_| \___/ \___/ |____|_|\_\|_| |_|
 ```
 
-**10 specialized agents · 14 commands & skills · Claude · Opencode · Ampcode · Droid**
+**10 specialized agents · 13 commands & skills · Claude · Opencode · Ampcode · Droid**
 **— plus a full Linux terminal dev environment**
 
 <p align="center">
@@ -65,19 +65,18 @@ cp -rv ai/subagentic/ampcode/*  ~/.config/amp/       # Amp
 | `/stash` | Snapshot this session's context before compaction or handoff |
 | `/remember` | Fold stashes + friction into hot project memory |
 | `/docs-builder` | Reorg, index, and split a docs corpus so search actually finds things |
-| `/debrief` | Verify what you delivered since the last debrief — real runs, not re-assertion |
-| `/branch-review` | Full pre-merge review — blockers reported, nits to the fix ledger |
-| `/release` | Docs sweep, version bump, local commit, then hand back the merge sequence |
+| `/self-review` | Verify what you delivered since the last self-review with real runs, and review its structure |
+| `/branch-review` | Full pre-merge review, docs sweep — blockers reported, nits to the fix ledger |
+| `/release` | CHANGELOG, version bump, local commit, then hand back the merge sequence |
 | `/refactor` | Work the fix ledger's `nit` bullets; with args, refactor and optimize a named area |
 | `/security` | Standalone vulnerability audit (also stage 2 of `/branch-review`) |
-| `/ship` | Mechanical pre-deploy gate — tests, build, tree state, pass/fail only |
 | `/test-generate` | Generate a test suite and verify each test exercises real code |
 | `/brainstorming` | Turn a rough idea into a formed design by questioning |
 | `/root-cause` | Find the cause before changing code — evidence, backward trace, one hypothesis, fix at the source |
 | `/live-canvas` | UI variations with click-to-annotate feedback in the browser |
 | `/skill-creator` | Build a new skill |
 
-<sub>Claude Code and Amp ship all 14 as skills; Opencode and Droid expose all 14 as commands. All four also ship agent reference docs.</sub>
+<sub>Claude Code and Amp ship all 13 as skills; Opencode and Droid expose all 13 as commands. All four also ship agent reference docs.</sub>
 
 ---
 
@@ -152,25 +151,31 @@ Two ways it comes back:
 It also ships with real UI direction baked in, so it can generate variations of a screen
 for you to pick from — no more hours spent nudging divs to find out what you actually wanted.
 
-### `/debrief` → `/branch-review` → `/release` → `/refactor`
+### `/self-review` → `/branch-review` → `/release` → `/refactor`
 
-- **`/debrief`** — everything since the last debrief, committed or not, before
-  `/branch-review`. The orchestrator only writes a handoff; one spawned mid-tier worker
-  tries to break the claims with real runs (works, no regression, bloat, glossed over,
-  underspecced, docs) and reports max 5 items in Fix now / Later. It never fixes
+- **`/self-review`** — everything since the last self-review, committed or not, before
+  `/branch-review`. The orchestrator only writes a handoff; one spawned mid-tier worker tries
+  to break the claims with real runs (works, no regression, structure — dead code, state
+  ownership, reuse, naming, performance — glossed over, underspecced) and reports max 5
+  failure-sentence items plus max 5 Structure items in Fix now / Later. It never fixes
   anything — whatever you don't fix now goes to the fix ledger, tagged `nit` or
   `change`. Not a gate.
 - **`/branch-review`** — the powerhouse. Reviews every change on a branch, medium depth
-  by default. Surfaces confirmed blockers only: real bugs, dead and unused code,
-  state-ownership breaks, plus a full OWASP-shaped security pass (no leaked keys, no
+  by default. Surfaces confirmed blockers only: real bugs, test quality,
+  plus a full OWASP-shaped security pass (no leaked keys, no
   injection, trust boundaries checked) that runs at full depth regardless of level.
-  Everything non-blocking goes to the fix ledger.
-- **`/release`** — does the pre-release chores you'd otherwise do by hand: README,
-  CHANGELOG, PRD, findings, version bump, local commit. Then it tells you you're ready
-  to merge, and hands the sequence back. It never pushes.
+  Everything non-blocking goes to the fix ledger. It also sweeps and commits the
+  project's docs — README, PRD, findings — for what the branch changed, once at the
+  end, once the review is settled (ready, or every blocker pushed through by name).
+- **`/release`** — does the last pre-release chore: runs short mechanical checks (lint,
+  migrations, in sync with `origin`; tests only if the review record's `tests:` line doesn't
+  cover them), writes the CHANGELOG entry, bumps the version, commits locally. Then it tells you you're ready to merge, and hands the
+  sequence back. It never pushes.
 - **`/refactor`** — with no arguments, works the fix ledger: fixes `nit` bullets, leaves
   `change` bullets (bigger than a refactor) for real work. Cumulative by design: nits
   pile up until you choose to clear them, so review and release never drown in them.
+  With a whole-area argument it first lists candidates (what is wrong, the proposed
+  change, strength) and stops; only the ones you pick are edited.
 
 ---
 
@@ -216,9 +221,10 @@ docs/           # guides
 |---|---|
 | [`/remember`](docs/remember-README.md) | The `/stash` → `/remember` pipeline, friction sensor, antigen ledger |
 | [`/docs-builder`](docs/docs-builder-README.md) | Reorg and cleanup modes, measured cost, the drift ledger |
-| [`/debrief`](docs/debrief-README.md) | The handoff → worker → relay flow, the bar, Fix now / Later |
-| [`/branch-review`](docs/branch-review-README.md) | The three stages, what blocks, the fix-ledger loop |
-| [`/live-canvas`](docs/live-canvas-README.md) | Both modes and the Claude Code channel plugin setup |
+| [`/self-review`](docs/self-review-README.md) | The handoff → worker → relay flow, the bar, Fix now / Later |
+| [`/branch-review`](docs/branch-review-README.md) | The four stages, what blocks, the fix-ledger loop |
+| [`/live-canvas`](docs/live-canvas-README.md) | Both modes, the click-to-annotate overlay, and setup |
+| [live-canvas-channel](docs/live-canvas-channel-README.md) | The Claude Code MCP channel plugin — install, protocol, debugging |
 | [`AGENT_RULES.md`](ai/customize/config/AGENT_RULES.md) | The rules doc itself |
 | [All agents & commands](ai/subagentic/subagentic-manual.md) | Full reference, token loads, progressive disclosure |
 | [Vibecoding 101](docs/vibecoding-101-guide.md) | Beginner's guide to AI-powered development |
