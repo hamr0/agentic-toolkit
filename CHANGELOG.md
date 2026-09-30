@@ -8,6 +8,34 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [3.0.1] — 2026-09-30
+
+Mirrored from liteagents 4.0.1. All four kits verified byte-identical to
+`packages/<kit>` at liteagents v4.0.1 (`diff -rq`, zero differences).
+
+### Fixed
+- **live-canvas channel server refuses non-loopback origins (security).** Any
+  web page could POST a fake comment into the session or append to
+  `.claude-design/feedback.jsonl`. Requests whose `Origin` is not
+  `localhost`/`127.0.0.1`/`[::1]` now get a 403 before routing; loopback
+  origins are echoed back instead of `*`.
+- **docs-builder: a zero-move run that rewrites the index now writes a fresh
+  commit recipe** instead of leaving the previous run's files in place.
+- **`/branch-review` `allowed-tools` gains `Bash(git rev-list:*)`** (claude,
+  ampcode).
+- **`/release` Phase 0.5: a merge or rebase of `origin/main` is never
+  forgiven, even when docs-only.**
+- **`/branch-review`: a carried `debrief-sha:` line keeps its name** until
+  `/self-review` rewrites it.
+
+### Changed
+- Over-long spec lines re-wrapped, no wording change.
+- `fast-uri` bumped 3.1.7 to 3.1.8 in the live-canvas-channel plugin lockfile
+  (indirect dependency).
+- `docs/branch-review-README.md`, `docs/docs-builder-README.md`,
+  `docs/live-canvas-README.md` and `docs/self-review-README.md` brought
+  current.
+
 ## [3.0.0] — 2026-09-30
 
 Mirrored from liteagents 4.0.0. All four kits verified byte-identical to
