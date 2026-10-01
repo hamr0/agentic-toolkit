@@ -19,6 +19,7 @@ import socket
 import time
 import sys
 import argparse
+import shlex
 
 def is_server_ready(port, timeout=30):
     """Wait for server to be ready by polling the port."""
@@ -65,10 +66,17 @@ def main():
         for i, server in enumerate(servers):
             print(f"Starting server {i+1}/{len(servers)}: {server['cmd']}")
 
-            # Use shell=True to support commands with cd and &&
+            # Avoid invoking a shell (prevents metacharacter injection).
+            # Support the documented "cd DIR && CMD" form explicitly via cwd,
+            # and tokenize the rest with shlex so the process is exec'd directly.
+            cmd = server['cmd']
+            cwd = None
+            if cmd.startswith('cd ') and ' && ' in cmd:
+                cd_part, _, cmd = cmd.partition(' && ')
+                cwd = cd_part[3:].strip()
             process = subprocess.Popen(
-                server['cmd'],
-                shell=True,
+                shlex.split(cmd),
+                cwd=cwd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE
             )
