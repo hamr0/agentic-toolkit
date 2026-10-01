@@ -8,6 +8,40 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [3.1.0] — 2026-10-01
+
+Mirrored from liteagents 4.1.0. All four kits verified byte-identical to
+`packages/<kit>` at liteagents v4.1.0 (`diff -rq`, zero differences).
+
+### Added
+- **Fix-ledger tag `idea`** beside `nit` and `change`: something missing that
+  might be worth building. `/self-review` tags its Underspecced items `idea`;
+  `/branch-review` never writes it. Ledger counts report ideas separately.
+- **`/self-review` report lines and ledger rules**: ledger bullet shape inlined,
+  stale `fix-ledger.md` header refreshed by both `/self-review` and
+  `/branch-review`, `underspecced:` and `cleanup:` report lines, relay keeps
+  each item's tag and `file:line`.
+
+### Changed
+- **`/branch-review` docs-sweep counts are honest** (A + F + C = N; closing
+  line says checked / added / fixed / already correct).
+- **`/self-review`'s "Structure" item kind is now "Cleanup".**
+- **Stage-2 blanks name their scope** (whole-repo evidence, not the diff), and
+  stage-2 coverage is now an 11-line keyed block in `/security`, carried as
+  `s2` lines in the `/branch-review` record and checked by `/release`
+  Phase 0.5. Records written before this fail that check, by design.
+- **Required steps get a slot in the output**, filled with the result or
+  `NOT RUN: <reason>`: `/root-cause`, `/self-review`, `/remember`,
+  `/live-canvas`, `/docs-builder`, `/branch-review`, `/refactor`, `/release`
+  and `/test-generate` (details in the liteagents 4.1.0 changelog).
+- **`/refactor` ledger mode asks per surviving `change`/`idea` item:** keep,
+  drop, or spec it.
+- **Ledger header names every deleter**; `/self-review` appends every item to
+  the ledger when it relays the report.
+- `docs/branch-review-README.md`, `docs/self-review-README.md` and
+  `ai/subagentic/subagentic-manual.md` brought current; toolkit-local links
+  kept.
+
 ## [3.0.1] — 2026-09-30
 
 Mirrored from liteagents 4.0.1. All four kits verified byte-identical to
