@@ -8,6 +8,34 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [3.3.0] — 2026-10-01
+
+Mirrored from liteagents 4.3.0. All four kits verified byte-identical to
+`packages/<kit>` at liteagents v4.3.0 (`diff -rq`, zero differences); the six
+`docs/*-README.md` pages refreshed from `docs/product/` with relative links fixed.
+
+### Changed
+- **`/live-canvas`, `/docs-builder` and `/branch-review` trimmed** (1099 to 311,
+  1009 to 194, 479 to 307 lines). The *why* moved to their READMEs; every rule is
+  one line. No behaviour change in `/branch-review`'s trim.
+- **`docs-builder.cjs` prints its own approval preview**, commit question, branch
+  line and gitignore warning; takes default file arguments; writes the writer brief
+  into each task file.
+- **`/branch-review` closing block gains `proof:` and `liveness:` lines**
+  (`.claude/remember/` md5 comparison, docs-line check, dead or disproved ledger bullets).
+- **`/live-canvas` channel server pins the first loopback origin** (others get 403);
+  `/feedback-jsonl` caps records at 256KB and files at 5MB. Live Finish writes
+  `feedback.jsonl` and cleanup removes the copied overlay. New output slots in
+  `/live-canvas` and `/docs-builder` final reports.
+- **`/remember` runs the friction scan as its own command with a 10-minute timeout.**
+
+### Fixed
+- `/docs-builder`: `apply-reorg` keeps the plan at each file's new path; `search`
+  errors on a missing explicit outline.
+- `/live-canvas`: the overlay opens the Finish box in Live mode after all comments
+  have streamed.
+- `/branch-review` never forgives a merge of `origin/main` after the review.
+
 ## [3.2.0] — 2026-10-01
 
 Mirrored from liteagents 4.2.0. All four kits verified byte-identical to
