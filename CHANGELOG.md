@@ -8,6 +8,40 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [3.2.0] — 2026-10-01
+
+Mirrored from liteagents 4.2.0. All four kits verified byte-identical to
+`packages/<kit>` at liteagents v4.2.0 (`diff -rq`, zero differences).
+
+### Changed
+- **`/remember` trimmed from 641 to 258 lines.** The *why* moved to
+  `docs/remember-README.md`; every rule is one line; 13 new step-8 report slots
+  make required steps visible in the output.
+- **`friction.cjs count` owns naming, decay and escalation.** New antigens are
+  named from the first two words of the cluster's `top_keywords`; `observing`
+  entries with no new evidence for more than 56 days become `expired` (and
+  reactivate on new evidence; `hot` never ages out); a `hot` entry with
+  `recurred_while_hot >= 2` is marked `failed`, and after 2 earlier failures
+  `escalated`. `count_report.json` carries `decay`, `needs_rephrase` and
+  `escalated`.
+- **One target rule for `/self-review` and `/branch-review`:** no hash reviews
+  the committed work on the current branch (dirty tree stops; `main`/`master`
+  asks for hashes or a range); one or more hashes or a range `<a>..<b>` review
+  exactly those commits on any branch. `/branch-review` no longer accepts a ref
+  or a path, and `/self-review` no longer reviews uncommitted changes. Hash and
+  range reviews write no record, move no bookmark, run no docs sweep.
+- Docs and the subagentic manual now say committed work only for `/self-review`.
+
+### Fixed
+- **`friction.cjs` no longer reads helper reports as the user's words**
+  (subagent hand-backs and cross-session messages were forming false clusters).
+- `/self-review`: a bookmark already merged into `main` is treated as no
+  bookmark; handoff carries baseline suite totals; ledger appends use one path
+  and snippet per bullet.
+- `/branch-review`: `self-review-sha:` always carried forward; load-failure reds
+  trigger a mutation on a temp copy of HEAD; `s2` lines read
+  `ran: <command or file:line> -> <clean | finding: file:line>`.
+
 ## [3.1.0] — 2026-10-01
 
 Mirrored from liteagents 4.1.0. All four kits verified byte-identical to
