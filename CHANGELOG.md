@@ -8,6 +8,35 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [3.5.0] — 2026-10-02
+
+Mirrored from liteagents 4.5.0. All four kits verified byte-identical to
+`packages/<kit>` at liteagents v4.5.0 (`diff -rq`, zero differences); the
+`docs/remember-README.md` page refreshed from `docs/product/` with relative links
+fixed.
+
+### Removed
+- **`/skill-creator` is removed from all four kits.** The catalog goes from 13 to 12
+  capabilities. Claude Code now ships its own skill creator; Droid, opencode and Amp
+  get no replacement from this kit. Upgrading does not delete a copy you already
+  installed: the installer only copies over. Remove it by hand:
+  `~/.claude/skills/skill-creator/`, `~/.config/amp/skills/skill-creator/`,
+  `~/.factory/commands/skill-creator.md` and `~/.factory/commands/skill-creator/`,
+  `~/.config/opencode/command/skill-creator.md` and
+  `~/.config/opencode/command/skill-creator/`.
+
+### Changed
+- `/release`: the hand-back prints `gh pr merge --admin --merge --delete-branch`
+  instead of `--squash`, so a release PR lands as a merge commit and the branch's
+  own commits stay on main.
+- `/remember`: the Episodes rule states the same-date tie-break (the one later in the
+  file is the newer) and how to report a removed episode whose lesson is already a
+  fact; "relay script output verbatim" is scoped to output meant for the user, and
+  JSON a step consumes is input.
+- Docs: `docs/remember-README.md` refreshed with those `/remember` rules; the
+  subagentic manual and the root README now count 12 capabilities and drop the
+  `/skill-creator` row.
+
 ## [3.4.0] — 2026-10-01
 
 Mirrored from liteagents 4.4.0. All four kits verified byte-identical to

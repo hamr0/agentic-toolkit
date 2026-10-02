@@ -7,7 +7,7 @@
 /_/ \_\___/|___||_|\_||___||_|\___|    |_| \___/ \___/ |____|_|\_\|_| |_|
 ```
 
-**10 specialized agents · 13 commands & skills · Claude · Opencode · Ampcode · Droid**
+**10 specialized agents · 12 commands & skills · Claude · Opencode · Ampcode · Droid**
 **— plus a full Linux terminal dev environment**
 
 <p align="center">
@@ -58,7 +58,7 @@ cp -rv ai/subagentic/ampcode/*  ~/.config/amp/       # Amp
 | `system-architect` | System design, tech selection, API design, scale |
 | `ui-designer` | UI/UX, wireframes, prototypes, design systems |
 
-**Commands & skills** — `/name`. Four of them can fire on their own when the situation matches: `/brainstorming`, `/root-cause`, `/live-canvas`, `/skill-creator`.
+**Commands & skills** — `/name`. Three of them can fire on their own when the situation matches: `/brainstorming`, `/root-cause`, `/live-canvas`.
 
 | Command | What it's for |
 |---|---|
@@ -74,9 +74,8 @@ cp -rv ai/subagentic/ampcode/*  ~/.config/amp/       # Amp
 | `/brainstorming` | Turn a rough idea into a formed design by questioning |
 | `/root-cause` | Find the cause before changing code — evidence, backward trace, one hypothesis, fix at the source |
 | `/live-canvas` | UI variations with click-to-annotate feedback in the browser |
-| `/skill-creator` | Build a new skill |
 
-<sub>Claude Code and Amp ship all 13 as skills; Opencode and Droid expose all 13 as commands. All four also ship agent reference docs.</sub>
+<sub>Claude Code and Amp ship all 12 as skills; Opencode and Droid expose all 12 as commands. All four also ship agent reference docs.</sub>
 
 ---
 
