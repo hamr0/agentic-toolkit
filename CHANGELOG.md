@@ -8,6 +8,18 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [3.6.0] — 2026-10-05
+
+Mirrored from liteagents 4.6.0. All four kits verified byte-identical to
+`packages/<kit>` at liteagents v4.6.0 (`diff -rq`, zero differences); the
+`docs/docs-builder-README.md` page refreshed from `docs/product/`.
+
+### Fixed
+- **`/docs-builder`: heavy model work always spawns.** One spawn rule (tier stated,
+  no sub-spawning, user questions stay in the main session); each model step says "spawn".
+- **`/docs-builder`: the reorg approval list is one `from <file> to <dest> · <n> lines ·
+  <bucket>` line per row**, replacing a pipe table that rendered malformed in AskUserQuestion.
+
 ## [3.5.0] — 2026-10-02
 
 Mirrored from liteagents 4.5.0. All four kits verified byte-identical to
