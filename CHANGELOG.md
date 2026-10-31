@@ -8,6 +8,17 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [3.6.1] — 2026-10-31
+
+Mirrored from liteagents 4.6.1. All four kits verified byte-identical to
+`packages/<kit>` at liteagents v4.6.1 (`diff -rq`, zero differences).
+
+### Fixed
+- **live-canvas channel: body-parser CVE-2026-111181.** Resolved body-parser is now 2.4.0.
+
+### Changed
+- **live-canvas channel dependency updates.** Refreshed channel `package.json` and lockfile.
+
 ## [3.6.0] — 2026-10-05
 
 Mirrored from liteagents 4.6.0. All four kits verified byte-identical to
