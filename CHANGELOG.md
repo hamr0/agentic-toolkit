@@ -8,6 +8,31 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [3.7.0] — 2026-11-24
+
+Mirrored from liteagents 4.7.0. All four kits verified byte-identical to
+`packages/<kit>` at liteagents v4.7.0 (`diff -rq`, zero differences); the
+`docs/branch-review-README.md`, `docs/remember-README.md` and
+`docs/self-review-README.md` pages refreshed from `docs/product/`; new
+`docs/refactor-README.md` and `docs/release-README.md` pages added.
+
+### Added
+- **`/refactor duplicates [path]`.** Finds functions that do the same job; you pick, and it
+  merges one at a time.
+- **One source of the dev rules.** The `DEV_RULES` block in `AGENT_RULES.md` is copied
+  byte-for-byte into each repo's config by `stub-check.cjs`; an unmanaged `## Dev Rules`
+  section is replaced by the managed block (config kept as `.bak`).
+- **`/self-review` checks the diff against `DEV_RULES`** and prints a fifth must-fill
+  `reuse:` report line; reuse items route to `/refactor duplicates`.
+
+### Changed
+- **One full test suite per code change.** `/self-review`, `/branch-review` and `/release`
+  share a `green:` record line and one REUSE/RUN decider line; docs-only changes never
+  re-run the suite. Gates run the full suite; coding runs targeted tests only.
+- `/refactor` free-text args mean ledger mode; `/release` drops the `/code-review` fallback.
+- `AGENT_RULES.md` wording fixes; rationale moved out of the specs into the READMEs.
+- live-canvas channel lockfile refreshed.
+
 ## [3.6.1] — 2026-10-31
 
 Mirrored from liteagents 4.6.1. All four kits verified byte-identical to
