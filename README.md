@@ -7,7 +7,7 @@
 /_/ \_\___/|___||_|\_||___||_|\___|    |_| \___/ \___/ |____|_|\_\|_| |_|
 ```
 
-**10 specialized agents · 12 commands & skills · Claude · Opencode · Ampcode · Droid**
+**9 specialized agents · 12 commands & skills · Claude · Opencode · Ampcode · Droid**
 **— plus a full Linux terminal dev environment**
 
 <p align="center">
@@ -50,7 +50,6 @@ cp -rv ai/subagentic/ampcode/*  ~/.config/amp/       # Amp
 | `1-create-prd` | Define scope as a PRD — a portal into the work, not a spec to obey |
 | `2-generate-tasks` | Break a PRD into granular, actionable tasks |
 | `3-process-task-list` | Execute tasks one at a time with review checkpoints |
-| `orchestrator` | Read intent, route to the right agent sequence |
 | `code-developer` | Implementation, debugging, refactoring |
 | `quality-assurance` | Test architecture, quality gates, risk assessment |
 | `feature-planner` | Epics, user stories, prioritization, backlog |

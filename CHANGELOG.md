@@ -8,6 +8,29 @@ ballpark, grouped by milestone rather than per-commit.
 
 ## [Unreleased]
 
+## [3.8.0] — 2026-11-26
+
+Mirrored from liteagents 4.8.0. All four kits verified byte-identical to `packages/<kit>` at liteagents v4.8.0 (`diff -rq`, zero differences).
+
+### Changed
+- **Subagents rewritten lean in all 4 kits.** One shape per agent (who I am, rules borrowed
+  from `AGENT_RULES`, steps, a must-fill report, hand-offs); dev rules built in, digraphs,
+  `*command` menus and persona scaffolding removed.
+- Coding agents report Reused/New/Copies checked/Proof; `quality-assurance` tries to break
+  the code, reports and never fixes.
+- `when_to_use` merged into `description` in all kits (Claude delegates on description only);
+  opencode drops the field, which is not an opencode agent field.
+- `ai/subagentic/subagentic-manual.md` now says 9 subagents (install table and the "same N
+  subagents" line), the "Specialist agents" heading reads 6, and the workflow patterns no longer
+  reference the orchestrator or the Sprint row; the manual keeps its own wording and links.
+- `README.md` header reads "9 specialized agents" and the `orchestrator` table row is gone.
+- The `live-canvas-channel` plugin's `package-lock.json` came along with the kit sync
+  (`hono` 4.13.18 -> 4.13.21 in the Claude kit).
+
+### Removed
+- `orchestrator` subagent from all 4 kits (10 -> 9 subagents): `agents/orchestrator.md`
+  (claude, ampcode), `droids/orchestrator.md` (droid), `agent/orchestrator.md` (opencode).
+
 ## [3.7.0] — 2026-11-24
 
 Mirrored from liteagents 4.7.0. All four kits verified byte-identical to
